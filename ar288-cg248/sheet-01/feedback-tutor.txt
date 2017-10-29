@@ -1,0 +1,59 @@
+Hi Abderrahmen and Chandran,
+
+here is my feedback for your submission of exercise sheet 01:
+
+# ______________________________________________________________________________
+# Exercise 1: 8/10 Points
+
+1. (1/2):
+Your method works, that is good! But your call to:
+    if record_id not in self.inverted_lists[word]:
+
+Does not work in O(1), it is in O(n) since searching through an array needs to traverse
+the full array until the element was found. Thus the complexity of your method in total is O(n^2)
+which scales bad and surely is not linear time.
+You already mentioned that the record ids are automatically sorted so you could just check the last
+entry instead of searching the whole array, this would then yield O(1) and O(n) in total.
+You need to improve that for the next exercise sheets else your code will be too slow
+for later exercises (or use the master solution).
+
+Besides that the method is fine, docs and test cases are also there.
+
+2. (3/3):
+Looks good, nice. However you missed a test case of the TIP-file (an important edge-case).
+Usually that means zero points so don't miss that next time.
+
+3. (3/3):
+Again, nicely done.
+
+But note that whenever you get "[]" because a keyword is not contained or if
+an intersection yields "[]" as result then you can directly abort the whole loop with "break" as
+the result will be "[]" in for sure.
+
+However you are again missing some tests specified in the TIP-file.
+
+4. (1/2):
+Hmmm. You take some keywords and compute the result which is good but then you don't
+output the result.
+That means half of the points I guess. Why didn't you implement the last bit of the method?
+If you had problems then please report back on the forum. We will help you fix those nasty issues.
+
+# ______________________________________________________________________________
+# Exercise 2: 2/5 Points
+
+You list some example queries but the explanation is very thin for the full points.
+
+# ______________________________________________________________________________
+# Exercise 3: 5/5 Points
+
+Yup, you are there. Neat!
+
+# ______________________________________________________________________________
+# General:
+
+Overall well done. Make sure to not forget the test cases of the TIP-file again.
+
+Total: 15/20 Points
+
+Cheers
+Daniel Tischner (daniel-tischner@web.de)

@@ -1,0 +1,4 @@
+For query that already exists in the file "movies.txt", as an example "kakashi" gone give good results,
+"Iron Man" gone give but results, because these are two separated words which make the searching more difficult 
+.....
+The exercise sheet wasn't to difficult, took 4-5 hours of work
