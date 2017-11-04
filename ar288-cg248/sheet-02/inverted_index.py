@@ -46,16 +46,19 @@ class InvertedIndex:
         ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
         [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
 
-        >>>   ii = Inverted_Lists()
-        >>>   ii.read_from_file("example.txt", b=0.75, k=1.75)
-        >>>   ii.inverted_lists
-
-        [('animated', [(1, 0.459), (2, 0.402), (4, 0.358)]),
-        ('animation', [(3, 2.211)]), ('film', [(2, 0.969), (4, 0.863)]),
-        ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
-        [(2, 1.938)]), ('short', [(3, 1.106), (4, 1.313)])]
-
         """
+
+        # """
+        # >>>   ii = Inverted_Lists()
+        # >>>   ii.read_from_file("example.txt", b=0.75, k=1.75)
+        # >>>   ii.inverted_lists
+
+        # [('animated', [(1, 0.459), (2, 0.402), (4, 0.358)]),
+        # ('animation', [(3, 2.211)]), ('film', [(2, 0.969), (4, 0.863)]),
+        # ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
+        # [(2, 1.938)]), ('short', [(3, 1.106), (4, 1.313)])]
+
+        # """
 
         record_id = 0
         with open(file_name) as file:
@@ -90,35 +93,45 @@ class InvertedIndex:
         """
         >>> ii = InvertedIndex()
         >>> list1 = [(1, 2.1), (5, 3.2)]
-        >>> list2 = [(1, 1.7), (2, 1.3), (5, 3.31)]
-        >>> ii.intersect(list1, list2)
+        >>> list2 = [(1, 1.7), (2, 1.3), (5, 3.3)]
+        >>> ii.merge(list1, list2)
         [(1, 3.8), (2, 1.3), (5, 6.5)]
         """
 
-        intersect_list = []
+        merge_list = []
 
         # iterate over the two list, and check for equality
         # (example slide 18)
         list1_iter = 0
         list2_iter = 0
         while list1_iter != len(list1) and list2_iter != list2:
-            if list1[list1_iter] < list2[list2_iter]:
+            if list1[list1_iter][0] < list2[list2_iter][0]:
+                tmp0 = list1[list1_iter][0]
+                tmp1 = list1[list1_iter][1]
+                merge_list.append((tmp0, tmp1))
                 list1_iter += 1
-            elif list1[list1_iter] > list2[list2_iter]:
+
+            elif list1[list1_iter][0] > list2[list2_iter][0]:
+                tmp0 = list2[list2_iter][0]
+                tmp1 = list2[list2_iter][1]
+                merge_list.append((tmp0, tmp1))
                 list2_iter += 1
             # the case where the two lists intersect
             else:
-                intersect_list.append(list1[list1_iter])
+                #                merge_list.append(list1[list1_iter][0])
+                tmp0 = list1[list1_iter][0]
+                tmp1 = list1[list1_iter][1] + list2[list2_iter][1]
+                merge_list.append((tmp0, tmp1))
                 list1_iter += 1
                 list2_iter += 1
-        return intersect_list
+        return merge_list
 
         # (not linear)
         #  for i in list1:
         #      if i in list2:
-        #          intersect_list.append(i)
+        #          merge_list.append(i)
 
-        #  return intersect_list
+        #  return merge_list
 
   # Process the given keyword query as follows: Fetch the inverted list for
   # each of the keywords in the query and compute the union of all lists. Sort
@@ -151,28 +164,28 @@ class InvertedIndex:
         # >>> ii.process_query(["animated", "movie"])
         # [3, 5]
 
-        intersect_list = []
+        merge_list = []
         # first check if the keywords_query not an empty list
         if len(keywords_query) == 0:
             return None
 
-        # initialize the intersect_list and check each intersection with
+        # initialize the merge_list and check each intersection with
         # each keyword
         if keywords_query[0] in self.inverted_lists:
-            intersect_list = self.inverted_lists[keywords_query[0]]
+            merge_list = self.inverted_lists[keywords_query[0]]
 
         i = 1
         while i < len(keywords_query):
             if keywords_query[i] in self.inverted_lists:
-                intersect_list = self.intersect(intersect_list,
+                merge_list = self.merge(merge_list,
                                                 self.inverted_lists
                                                 [keywords_query[i]])
             else:
-                intersect_list = []
+                merge_list = []
 
             i += 1
 
-        return intersect_list
+        return merge_list
 
 
 if __name__ == "__main__":
@@ -199,111 +212,111 @@ if __name__ == "__main__":
     keywords_query = ii.process_query(keywords_query, False)
 
 
-# Class for evaluating the InvertedIndex class against a benchmark.
-class EvaluateInvertedIndex:
-  # Read a benchmark from the given file. The expected format of the file is 
-  # one query per line, with the ids of all documents relevant for that query,
-  # like: <query>TAB<id1>WHITESPACE<id2>WHITESPACE<id3> ...
-  #
-  # TEST CASE:
-  #    read_benchmark("example-benchmark.txt")
-  # RESULT:
-  #    { 'animated film': {1, 3, 4}, 'short film': {3, 4} }
-  #Map<String, Set<int>> read_benchmark(String file_name)
-  def read_benchmark(self, file_name):
-      """
-      >>> read_benchmark("example-benchmark.txt")
-        [('animated film': {1, 3, 4}), ('short film': {3, 4})]
-      """
+# # Class for evaluating the InvertedIndex class against a benchmark.
+# class EvaluateInvertedIndex:
+#   # Read a benchmark from the given file. The expected format of the file is 
+#   # one query per line, with the ids of all documents relevant for that query,
+#   # like: <query>TAB<id1>WHITESPACE<id2>WHITESPACE<id3> ...
+#   #
+#   # TEST CASE:
+#   #    read_benchmark("example-benchmark.txt")
+#   # RESULT:
+#   #    { 'animated film': {1, 3, 4}, 'short film': {3, 4} }
+#   #Map<String, Set<int>> read_benchmark(String file_name)
+#   def read_benchmark(self, file_name):
+#       """
+#       >>> read_benchmark("example-benchmark.txt")
+#         [('animated film': {1, 3, 4}), ('short film': {3, 4})]
+#       """
 
-  # Evaluate the given inverted index against the given benchmark as follows.
-  # Process each query in the benchmark with the given inverted index and
-  # compare the result list with the groundtruth in the benchmark. For each
-  # query, compute the measure P@3, P@R and AP as explained in the lecture.
-  # Aggregate the values to the three mean measures MP@3, MP@R and MAP and
-  # return them.
-  #
-  # Implement a parameter 'use_refinements' that controls the use of ranking
-  # refinements on calling the method process_query of your inverted index.
-  #
-  # TEST_CASE:
-  #   InvertedIndex ii
-  #   ii.read_from_file("example.txt", b=0.75, k=1.75)
-  #   benchmark = read_benchmark("example-benchmark.txt")
-  #   evaluate(ii, benchmark, use_refinements=False)
-  # RESULT:
-  #   (0.667, 0.833, 0.694)
-  # Triple<float, float, float> evaluate(InvertedIndex ii, Map<String,
-  # Set<int>> benchmark, boolean use_refinements)
-  def evaluate(self, benchmark, use_refinements):
-      """
-      >>> ii = InvertedIndex()
-      >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
-      >>> benchmark = read_benchmark("example-benchmark.txt")
-      >>> evaluate(ii, benchmark, use_refinements=False)
-      [(0.667, 0.833, 0.694)]
-      """
+#   # Evaluate the given inverted index against the given benchmark as follows.
+#   # Process each query in the benchmark with the given inverted index and
+#   # compare the result list with the groundtruth in the benchmark. For each
+#   # query, compute the measure P@3, P@R and AP as explained in the lecture.
+#   # Aggregate the values to the three mean measures MP@3, MP@R and MAP and
+#   # return them.
+#   #
+#   # Implement a parameter 'use_refinements' that controls the use of ranking
+#   # refinements on calling the method process_query of your inverted index.
+#   #
+#   # TEST_CASE:
+#   #   InvertedIndex ii
+#   #   ii.read_from_file("example.txt", b=0.75, k=1.75)
+#   #   benchmark = read_benchmark("example-benchmark.txt")
+#   #   evaluate(ii, benchmark, use_refinements=False)
+#   # RESULT:
+#   #   (0.667, 0.833, 0.694)
+#   # Triple<float, float, float> evaluate(InvertedIndex ii, Map<String,
+#   # Set<int>> benchmark, boolean use_refinements)
+#   def evaluate(self, benchmark, use_refinements):
+#       """
+#       >>> ii = InvertedIndex()
+#       >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
+#       >>> benchmark = read_benchmark("example-benchmark.txt")
+#       >>> evaluate(ii, benchmark, use_refinements=False)
+#       [(0.667, 0.833, 0.694)]
+#       """
 
-  # Compute the measure P@k for the given list of result ids as it was
-  # returned by the inverted index for a single query, and the given set of
-  # relevant document ids.
-  #
-  # Note that the relevant document ids are 1-based (as they reflect the line
-  # number in the dataset file).
-  #
-  # TEST CASE:
-  #   precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=2)
-  # RESULT:
-  #   0.5
-  #
-  # TEST CASE:
-  #   precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=4)
-  # RESULT:
-  #   0.75
-  # float precision_at_k(Array<int> result_ids, Set<int> relevant_ids, int k)
-  def precision_at_k(self, result_ids, relevant_ids, k):
-      """
-      >>> precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=2)
-      [0.5]
+#   # Compute the measure P@k for the given list of result ids as it was
+#   # returned by the inverted index for a single query, and the given set of
+#   # relevant document ids.
+#   #
+#   # Note that the relevant document ids are 1-based (as they reflect the line
+#   # number in the dataset file).
+#   #
+#   # TEST CASE:
+#   #   precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=2)
+#   # RESULT:
+#   #   0.5
+#   #
+#   # TEST CASE:
+#   #   precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=4)
+#   # RESULT:
+#   #   0.75
+#   # float precision_at_k(Array<int> result_ids, Set<int> relevant_ids, int k)
+#   def precision_at_k(self, result_ids, relevant_ids, k):
+#       """
+#       >>> precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=2)
+#       [0.5]
 
-      >>> precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=4)
-      [0.75]
-      """
+#       >>> precision_at_k([5, 3, 6, 1, 2], {1, 2, 5, 6, 7, 8}, k=4)
+#       [0.75]
+#       """
 
-  # Compute the average precision (AP) for the given list of result ids as it
-  # was returned by the inverted index for a single query, and the given set
-  # of relevant document ids.
-  #
-  # Note that the relevant document ids are 1-based (as they reflect the line
-  # number in the dataset file).
-  #
-  # TEST CASE:
-  #   average_precision([7, 17, 9, 42, 5], {5, 7, 12, 42})
-  # RESULT:
-  #   0.525
-  # float average_precision(Array<int> result_ids, Set<int> relevant_ids)
-  def average_precision(self, result_ids, relevant_ids):
-      """
-      >>> average_precision([7, 17, 9, 42, 5], {5, 7, 12, 42})
-      [0.525]
-      """
+#   # Compute the average precision (AP) for the given list of result ids as it
+#   # was returned by the inverted index for a single query, and the given set
+#   # of relevant document ids.
+#   #
+#   # Note that the relevant document ids are 1-based (as they reflect the line
+#   # number in the dataset file).
+#   #
+#   # TEST CASE:
+#   #   average_precision([7, 17, 9, 42, 5], {5, 7, 12, 42})
+#   # RESULT:
+#   #   0.525
+#   # float average_precision(Array<int> result_ids, Set<int> relevant_ids)
+#   def average_precision(self, result_ids, relevant_ids):
+#       """
+#       >>> average_precision([7, 17, 9, 42, 5], {5, 7, 12, 42})
+#       [0.525]
+#       """
       
-# if __name__ == "__main__":
-    # if len(sys.argv) != 2:
-    #     print("Usage: python3 inverted_index.py <file name>")
-    #     sys.exit(1)
+# # if __name__ == "__main__":
+#     # if len(sys.argv) != 2:
+#     #     print("Usage: python3 inverted_index.py <file name>")
+#     #     sys.exit(1)
 
-    # file_name = sys.argv[1]
+#     # file_name = sys.argv[1]
 
-    # ii = InvertedIndex()
-    # ii.read_from_file(file_name)
+#     # ii = InvertedIndex()
+#     # ii.read_from_file(file_name)
 
-    # keyword = ""
-    # keywords_query = []
+#     # keyword = ""
+#     # keywords_query = []
 
-    # while keyword != "end":
-    #     keyword = input("give keyword querys\n")
-    #     if keyword != "end":
-    #         keywords_query.append(keyword)
+#     # while keyword != "end":
+#     #     keyword = input("give keyword querys\n")
+#     #     if keyword != "end":
+#     #         keywords_query.append(keyword)
 
-    # keywords_query = ii.process_query(keywords_query)
+#     # keywords_query = ii.process_query(keywords_query)
