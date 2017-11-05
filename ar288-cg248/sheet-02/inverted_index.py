@@ -38,9 +38,8 @@ class InvertedIndex:
     def read_from_file(self, file_name, b, k):
         """
         >>> ii = InvertedIndex()
-        >>> ii.read_from_file("example.txt", b=0, k=Infinity)
+        >>> ii.read_from_file("example.txt", b=0, k=float("inf"))
         >>> sorted(ii.inverted_lists.items())
-
         [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]),
         ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]),
         ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
@@ -48,24 +47,20 @@ class InvertedIndex:
 
         """
 
-        # """
-        # >>>   ii = Inverted_Lists()
-        # >>>   ii.read_from_file("example.txt", b=0.75, k=1.75)
-        # >>>   ii.inverted_lists
-
-        # [('animated', [(1, 0.459), (2, 0.402), (4, 0.358)]),
-        # ('animation', [(3, 2.211)]), ('film', [(2, 0.969), (4, 0.863)]),
-        # ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
-        # [(2, 1.938)]), ('short', [(3, 1.106), (4, 1.313)])]
-
-        # """
+        #dls = []
 
         record_id = 0
         with open(file_name) as file:
+            total = 0
+            N = 0
             for line in file:
                 record_id += 1
+                dl = 0
+                tf = 0
+                N = N + 1
                 for word in re.split("[^a-zA-Z]+", line):
                     if len(word) > 0:
+                        dl = dl + 1
                         word = word.lower()
                         if word not in self.inverted_lists:
                             self.inverted_lists[word] = []
@@ -76,19 +71,32 @@ class InvertedIndex:
                         # contains a particular record id, we should make
                         # sure that it occurs just once in the list
                         if record_id not in self.inverted_lists[word]:
-                            self.inverted_lists[word].append(record_id)
+                            tf = tf + 1
+                            self.inverted_lists[word].append((record_id, tf))
+#                        else:
+#                            self.inverted_lists[word][1] = tf
 
+
+                #dls[line] = dl
+                total = total + dl
+            # AVDL = total / len(dls)
+            AVDL = total / N
+
+        df = len(self.inverted_lists) - 1
+        # for item in self.inverted_lists:
+        # line = 0
+        # word = 0
+#        with open(file_name) as file:
+ #           for line in file:
+  #              for word in re.split("[^a-zA-Z]+", line):
+                #     BM25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df),
+   #                 self.inverted_lists[word][1] = self.inverted_lists[word][1] * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df)
 
 
         # Compute the union of the two given inverted lists in linear time (linear
         # in the total number of entries in the two lists), where the entries in
         # the inverted lists are postings of form (doc_id, bm25_score) and are
         # expected to be sorted by doc_id, in ascending order.
-        #
-        # TEST CASE:
-        #   merge([(1, 2.1), (5, 3.2)], [(1, 1.7), (2, 1.3), (5, 3.3)])
-        # RESULT:
-        #   [(1, 3.8), (2, 1.3), (5, 6.5)]
     def merge(self, list1, list2):
         """
         >>> ii = InvertedIndex()
@@ -101,24 +109,27 @@ class InvertedIndex:
         merge_list = []
 
         # iterate over the two list, and check for equality
-        # (example slide 18)
         list1_iter = 0
         list2_iter = 0
         while list1_iter != len(list1) and list2_iter != list2:
             if list1[list1_iter][0] < list2[list2_iter][0]:
+                # Just append without adding up the scores if the item
+                # only occurs in list 1
                 tmp0 = list1[list1_iter][0]
                 tmp1 = list1[list1_iter][1]
                 merge_list.append((tmp0, tmp1))
                 list1_iter += 1
 
             elif list1[list1_iter][0] > list2[list2_iter][0]:
+                # Just append without adding up the scores if the item
+                # only occurs in list 2
                 tmp0 = list2[list2_iter][0]
                 tmp1 = list2[list2_iter][1]
                 merge_list.append((tmp0, tmp1))
                 list2_iter += 1
-            # the case where the two lists intersect
+
             else:
-                #                merge_list.append(list1[list1_iter][0])
+                # Add up the bm25_score when equal
                 tmp0 = list1[list1_iter][0]
                 tmp1 = list1[list1_iter][1] + list2[list2_iter][1]
                 merge_list.append((tmp0, tmp1))
@@ -126,12 +137,7 @@ class InvertedIndex:
                 list2_iter += 1
         return merge_list
 
-        # (not linear)
-        #  for i in list1:
-        #      if i in list2:
-        #          merge_list.append(i)
 
-        #  return merge_list
 
   # Process the given keyword query as follows: Fetch the inverted list for
   # each of the keywords in the query and compute the union of all lists. Sort
@@ -139,30 +145,18 @@ class InvertedIndex:
   #
   # If you want to implement some ranking refinements, make these refinements
   # optional (their use should be controllable via a 'use_refinements' flag).
-  #
-  # TEST CASE:
-  #   InvertedIndex ii
-  #   ii.inverted_lists = {
-  #     "foo": [(1, 0.2), (3, 0.6)],
-  #     "bar": [(1, 0.4), (2, 0.7), (3, 0.5)]
-  #     "baz": [(2, 0.1)]
-  #   }
-  #   ii.process_query("foo bar", use_refinements=False)
-  # RESULT:
-  #   [(3, 1.1), (2, 0.7), (1, 0.6)]
     def process_query(self, keywords_query, use_refinements):
         """
-        for each given keywords, fetch the inverted lists and compute
-        their intersection
+        InvertedIndex ii
+        ii.inverted_lists = {
+        "foo": [(1, 0.2), (3, 0.6)],
+        "bar": [(1, 0.4), (2, 0.7), (3, 0.5)]
+        "baz": [(2, 0.1)]
+        }
+        ii.process_query("foo bar", use_refinements=False)
 
-        >>> ii = InvertedIndex()
-
-        >>> ii.read_from_file("example.txt")
-        >>> ii.process_query(["animated"])
-        [5]
+        [(3, 1.1), (2, 0.7), (1, 0.6)]
         """
-        # >>> ii.process_query(["animated", "movie"])
-        # [3, 5]
 
         merge_list = []
         # first check if the keywords_query not an empty list
