@@ -14,6 +14,7 @@ class InvertedIndex:
         """ Create an empty inverted index. """
 
         self.inverted_lists = {}
+        self.records = []  # The records, each in form (title, description).
 
     # Construct the inverted index from the given file. The expected format of
     # the file is one document per line, in the format <title>TAB<description>.
@@ -47,64 +48,65 @@ class InvertedIndex:
 
         """
 
-        dls = []
-#       dfs = []
-        tfs = []
 
-        record_id = 0
-        with open(file_name) as file:
-            total = 0
-            N = 0
+
+        with open(file_name, "r") as file:
+            record_id = 1
             for line in file:
-                record_id += 1
-                dl = 0
                 tf = 0
-                N = N + 1
-                for word in re.split("[^a-zA-Z]+", line):
-                    if len(word) > 0:
-                        dl = dl + 1
-#                        dls[record_id] = dl
-                        word = word.lower()
-                        if word not in self.inverted_lists:
-                            self.inverted_lists[word] = []
-                        # Note that this way, the record ids will be
-                        # automatically in sorted order.
+                line = line.strip()
+                # Store the record as a tuple (title, description).
+                self.records.append(tuple(line.split("\t")))
 
-                        # to make sure that each inverted list
-                        # contains a particular record id, we should make
-                        # sure that it occurs just once in the list
- #                       if record_id not in self.inverted_lists[word]:
-                        if record_id not in self.inverted_lists[word]:
-                            tf = tf + 1
-                            self.inverted_lists[word].append((record_id, tf))
-#                        else:
-#                            tf = tf + 1
-#                            self.inverted_lists[word][1] = tf
+                print(line)
 
-                #dls[line] = dl
-                total = total + dl
-            # AVDL = total / len(dls)
-            AVDL = total / N
-            df = len(self.inverted_lists) - 1     # Not correct yet
+                for word in re.split("[^A-Za-z]+", line):
+                    word = word.lower().strip()
 
-        # print("dls ", dls)
-        # print("df ", df)
-        # print("AVDL ", AVDL)
-        # print("total ", total)
-        # print("tf ", tf)
-        # print("k ", k)
-        # print("b ", b)
-        # for item in self.inverted_lists:
-        #     print(self.inverted_lists[item])
+                    # Ignore the word if it is empty.
+                    if len(word) == 0:
+                        continue
 
-        # for item in self.inverted_lists:
-        # line = 0
-        # word = 0
-#        with open(file_name) as file:
- #           for line in file:
-  #              for word in re.split("[^a-zA-Z]+", line):
-                #     BM25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df),
-   #                 self.inverted_lists[word][1] = self.inverted_lists[word][1] * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df)
+                    if word not in self.inverted_lists:
+                        # The word is seen for first time, create a new list.
+                        tf = tf + 1
+                        self.inverted_lists[word] = [(record_id, tf)]
+                    elif self.inverted_lists[word][-1] != record_id:
+                        # Make sure that the list contains the id at most once.
+                        tf = tf + 1
+                        self.inverted_lists[word].append((record_id, tf))
+                record_id += 1
+
+
+
+
+#         record_id = 0
+#         with open(file_name) as file:
+#             for line in file:
+#                 record_id += 1
+#                 for word in re.split("[^a-zA-Z]+", line):
+#                     if len(word) > 0:
+#                         word = word.lower()
+#                         if word not in self.inverted_lists[len(self.inverted_lists) - 1]:
+#                             self.inverted_lists[word] = []
+#                         # Note that this way, the record ids will be
+#                         # automatically in sorted order.
+
+#                         # to make sure that each inverted list
+#                         # contains a particular record id, we should make
+#                         # sure that it occurs just once in the list
+#                         if record_id not in self.inverted_lists[word][len(self.inverted_lists - 1)]:
+#                             tf = tf + 1
+#                             self.inverted_lists[word].append((record_id, tf))
+# #                        else:
+# #                            tf = tf + 1
+# #                            self.inverted_lists[word][1] = tf
+
+
+
+
+
+
 
 
 
