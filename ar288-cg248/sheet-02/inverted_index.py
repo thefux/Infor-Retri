@@ -47,7 +47,9 @@ class InvertedIndex:
 
         """
 
-        #dls = []
+        dls = []
+#       dfs = []
+        tfs = []
 
         record_id = 0
         with open(file_name) as file:
@@ -61,6 +63,7 @@ class InvertedIndex:
                 for word in re.split("[^a-zA-Z]+", line):
                     if len(word) > 0:
                         dl = dl + 1
+#                        dls[record_id] = dl
                         word = word.lower()
                         if word not in self.inverted_lists:
                             self.inverted_lists[word] = []
@@ -70,19 +73,30 @@ class InvertedIndex:
                         # to make sure that each inverted list
                         # contains a particular record id, we should make
                         # sure that it occurs just once in the list
+ #                       if record_id not in self.inverted_lists[word]:
                         if record_id not in self.inverted_lists[word]:
                             tf = tf + 1
                             self.inverted_lists[word].append((record_id, tf))
 #                        else:
+#                            tf = tf + 1
 #                            self.inverted_lists[word][1] = tf
-
 
                 #dls[line] = dl
                 total = total + dl
             # AVDL = total / len(dls)
             AVDL = total / N
+            df = len(self.inverted_lists) - 1     # Not correct yet
 
-        df = len(self.inverted_lists) - 1
+        # print("dls ", dls)
+        # print("df ", df)
+        # print("AVDL ", AVDL)
+        # print("total ", total)
+        # print("tf ", tf)
+        # print("k ", k)
+        # print("b ", b)
+        # for item in self.inverted_lists:
+        #     print(self.inverted_lists[item])
+
         # for item in self.inverted_lists:
         # line = 0
         # word = 0
@@ -91,6 +105,7 @@ class InvertedIndex:
   #              for word in re.split("[^a-zA-Z]+", line):
                 #     BM25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df),
    #                 self.inverted_lists[word][1] = self.inverted_lists[word][1] * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df)
+
 
 
         # Compute the union of the two given inverted lists in linear time (linear
