@@ -9,6 +9,7 @@ import re
 import sys
 import math
 
+
 class InvertedIndex:
     # A simple inverted index that uses BM25 scores.
     def __init__(self):
@@ -17,30 +18,50 @@ class InvertedIndex:
         self.inverted_lists = {}
         self.records = []  # The records, each in form (title, description).
 
-    # Construct the inverted index from the given file. The expected format of
-    # the file is one document per line, in the format <title>TAB<description>.
-    # Each entry in the inverted list associated to a word should contain a
-    # document id and a BM25 score. Compute the BM25 scores as follows:
+    # Construct the inverted index from the given file. The expected
+    # format of the file is one document per line, in the format
+    # <title>TAB<description>.  Each entry in the inverted list
+    # associated to a word should contain a document id and a BM25
+    # score. Compute the BM25 scores as follows:
     #
-    # (1) In a first pass, compute the inverted lists with tf scores (that
-    #     is the number of occurrences of the word within the <title> and the
-    #     <description> of a document). Further, compute the document length
-    #     (DL) for each document (that is the number of words in the <title> and
-    #     the <description> of a document). Afterwards, compute the average
-    #     document length (AVDL).
-    # (2) In a second pass, iterate each inverted list and replace the tf scores
-    #     by BM25 scores, defined as:
-    #     BM25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df),
-    #     where N is the total number of documents and df is the number of
+    # (1) In a first pass, compute the inverted lists with tf scores
+    #     (that is the number of occurrences of the word within the
+    #     <title> and the <description> of a document). Further,
+    #     compute the document length (DL) for each document (that is
+    #     the number of words in the <title> and the <description> of
+    #     a document). Afterwards, compute the average document length
+    #     (AVDL).
+    #
+    # (2) In a second pass, iterate each inverted list and replace the
+    #     tf scores by BM25 scores, defined as: BM25 = tf * (k + 1) /
+    #     (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df), where N is
+    #     the total number of documents and df is the number of
     #     documents that contains the word.
     #
-    # On reading the file, use UTF-8 as the standard encoding. To split the
-    # texts into words, use the method introduced in the lecture. Make sure that
-    # you ignore empty words.
+    # On reading the file, use UTF-8 as the standard encoding. To
+    # split the texts into words, use the method introduced in the
+    # lecture. Make sure that you ignore empty words.
     def read_from_file(self, file_name, b, k):
+        # """ >>> ii = InvertedIndex() >>>
+        # ii.read_from_file("example.txt", b=0, k=float("inf")) >>>
+        # sorted(ii.inverted_lists.items()) [('animated', [(1, 0.415),
+        # (2, 0.415), (4, 0.415)]), ('animation', [(3, 2.0)]),
+        # ('film', [(2, 1.0), (4, 1.0)]), ('movie', [(1, 0.0), (2,
+        # 0.0), (3, 0.0), (4, 0.0)]), ('non', [(2, 2.0)]), ('short',
+        # [(3, 1.0), (4, 2.0)])]
+
+        # """
+        """
+        >>> ii = InvertedIndex()
+        >>> ii.read_from_file("example.txt", b=0, k=10000000)
+        >>> sorted(ii.inverted_lists.items())
+        [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]), ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]), ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non', [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
+
+        """
+
         # """
         # >>> ii = InvertedIndex()
-        # >>> ii.read_from_file("example.txt", b=0, k=float("inf"))
+        # >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
         # >>> sorted(ii.inverted_lists.items())
         # [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]),
         # ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]),
@@ -49,20 +70,9 @@ class InvertedIndex:
 
         # """
 
-        """
-        >>> ii = InvertedIndex()
-        >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
-        >>> sorted(ii.inverted_lists.items())
-        [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]),
-        ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]),
-        ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
-        [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
-
-        """
-
         dls = []
         avdl = 0
-        
+
         with open(file_name, "r") as file:
             record_id = 1
             for line in file:
@@ -72,7 +82,7 @@ class InvertedIndex:
                 # Store the record as a tuple (title, description).
                 self.records.append(tuple(line.split("\t")))
 
-                print(line)
+#                print(line)
                 dl = 0
                 for word in re.split("[^A-Za-z]+", line):
                     word = word.lower().strip()
@@ -84,7 +94,7 @@ class InvertedIndex:
                     if word not in self.inverted_lists:
                         # The word is seen for first time, create a new list.
                         tf = 1
-#                        print("set record_id, tf = 1", (record_id, tf), "word, ", word)
+#             print("set record_id, tf = 1", (record_id, tf), "word, ", word)
                         self.inverted_lists[word] = [(record_id, tf)]
                     elif self.inverted_lists[word][-1] == (record_id, tf):
                         tf = tf + 1
@@ -93,49 +103,35 @@ class InvertedIndex:
                         tf = 1
                     elif self.inverted_lists[word][-1] != (record_id, tf):
                         # Make sure that the list contains the id at most once.
-#                        print("append, ", (record_id, tf), "word, ", word)
                         self.inverted_lists[word].append((record_id, tf))
+#                        print("append, ", (record_id, tf), "word, ", word)
                 record_id += 1
                 avdl = avdl + dl
                 dls.append(dl)
 
-            
             N = record_id - 1
             avdl = avdl / N
-            print("N, ", N)
-            print("avdl, ", avdl)
-            print("dls, ", dls)
+            # print("N, ", N)
+            # print("avdl, ", avdl)
+            # print("dls, ", dls)
             bm25 = 0
             for key in self.inverted_lists:
-                print("--------------------")
-                # bm25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df)
-                print("self.inverted_lists[", key, "], ", self.inverted_lists[key])
+#                print("--------------------")
+#                print("self.inverted_lists[", key, "], ", self.inverted_lists[key])
                 df = len(self.inverted_lists[key])
-                print("df, ", df)
+#                print("df, ", df)
                 counter = 0
                 for value in self.inverted_lists[key]:
+#                    print("value, ", value)
                     counter = counter + 1
                     tf = value[1]
                     dl = dls[value[0] - 1]
-                    print("tf, ", tf)
-                    print("dl, ", dl)
+#                    print("tf, ", tf)
+#                    print("dl, ", dl)
                     bm25 = tf * (k + 1) / (k * (1 - b + b * dl / avdl) + tf) * math.log(N/df, 2)
-                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
-#                    print("value, ", value)
-                    self.inverted_lists[key][counter - 1] = (self.inverted_lists[key][counter - 1][0], round(bm25, 2))
-#                    self.inverted_lists[key] = (self.inverted_lists[value][0], bm25)
-#                    self.inverted_lists[key] = (self.inverted_lists[value][0], 10000)
-                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
-                    
-
-
-#             for key, value in self.inverted_lists.items():
-#                     # bm25 = tf * (k + 1) / (k * (1 - b + b * DL / AVDL) + tf) * log2(N/df)
-#                     print("key, ", key, " value, ", value)
-#                     print("value[-1][1], ", value[-1][1])
-# #                    self.inverted_lists[word][-1] = (record_id, bm25)
-# #                record_id += 1
-
+#                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
+                    self.inverted_lists[key][counter - 1] = (self.inverted_lists[key][counter - 1][0], round(bm25, 3))
+#                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
 
 
 
