@@ -5,9 +5,9 @@ Author: Hannah Bast <bast@cs.uni-freiburg.de>
 Edited by: Abderrahmen Rakez && Chandran Goodchild
 """
 
+import math
 import re
 import sys
-import math
 
 
 class InvertedIndex:
@@ -42,34 +42,29 @@ class InvertedIndex:
     # split the texts into words, use the method introduced in the
     # lecture. Make sure that you ignore empty words.
     def read_from_file(self, file_name, b, k):
-        # """ >>> ii = InvertedIndex() >>>
-        # ii.read_from_file("example.txt", b=0, k=float("inf")) >>>
-        # sorted(ii.inverted_lists.items()) [('animated', [(1, 0.415),
-        # (2, 0.415), (4, 0.415)]), ('animation', [(3, 2.0)]),
-        # ('film', [(2, 1.0), (4, 1.0)]), ('movie', [(1, 0.0), (2,
-        # 0.0), (3, 0.0), (4, 0.0)]), ('non', [(2, 2.0)]), ('short',
-        # [(3, 1.0), (4, 2.0)])]
-
-        # """
         """
         >>> ii = InvertedIndex()
-        >>> ii.read_from_file("example.txt", b=0, k=10000000)
+        >>> ii.read_from_file("example.txt", b=0, k="inf")
         >>> sorted(ii.inverted_lists.items())
-
-        [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]), ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]), ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non', [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
+        [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]), \
+('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]), \
+('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), \
+('non', [(2, 2.0)]), \
+('short', [(3, 1.0), (4, 2.0)])]
 
         """
 
-        # """
-        # >>> ii = InvertedIndex()
-        # >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
-        # >>> sorted(ii.inverted_lists.items())
-        # [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]),
-        # ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]),
-        # ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non',
-        # [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
+        """
+        >>> ii = InvertedIndex()
+        >>> ii.read_from_file("example.txt", b=0.75, k=1.75)
+        >>> sorted(ii.inverted_lists.items())
+        [('animated', [(1, 0.459), (2, 0.402), (4, 0.358)]), \
+('animation', [(3, 2.211)]), ('film', [(2, 0.969), (4, 0.863)]), \
+('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), \
+('non', [(2, 1.938)]), \
+('short', [(3, 1.106), (4, 1.313)])]
 
-        # """
+        """
 
         dls = []
         avdl = 0
@@ -105,8 +100,8 @@ class InvertedIndex:
                 avdl = avdl + dl
                 dls.append(dl)
 
-            N = record_id - 1
-            avdl = avdl / N
+            n = record_id - 1
+            avdl = avdl / n
             bm25 = 0
             for key in self.inverted_lists:
                 df = len(self.inverted_lists[key])
@@ -115,12 +110,44 @@ class InvertedIndex:
                     counter = counter + 1
                     tf = value[1]
                     dl = dls[value[0] - 1]
-                    bm25 = tf * (k + 1) / (k * (1 - b + b * dl / avdl) + tf)
-                    bm25 = bm25 * math.log(N/df, 2)
+                    if k == "inf":
+                        bm25 = tf * math.log(n/df, 2)
+                    else:
+                        bm25 = tf * (k + 1)
+                        bm25 = bm25 / (k * (1 - b + b * dl / avdl) + tf)
+                        bm25 = bm25 * math.log(n/df, 2)
                     self.inverted_lists[key][counter - 1] = (
                         self.inverted_lists[key][counter - 1][0],
-                        round(bm25, 3)
-                    )
+                        round(bm25, 3))
+
+    def intersect(self, list1, list2):
+        """Computes the intersection of the two given inverted lists in linear
+        time (linear in the total number of elements in the two lists).
+
+        >>> ii = InvertedIndex()
+        >>> ii.intersect([(1, 0), (5, 1), (7, 2)], [(2, 1), (4, 2)])
+        []
+        >>> ii.intersect([(1, 0), (2, 1), (5, 2), (7, 3)], [(1, 4),\
+ (3, 5), (5, 6), (6, 7), (7, 7), (9, 9)])
+        [(1, 4), (5, 8), (7, 10)]
+
+        """
+        i = 0  # The pointer in the first list.
+        j = 0  # The pointer int the second list.
+        result = []
+
+        while i < len(list1) and j < len(list2):
+            if list1[i][0] == list2[j][0]:
+                tmp = (list1[i][0], list1[i][1] + list2[j][1])
+                result.append(tmp)
+                i += 1
+                j += 1
+            elif list1[i][0] < list2[j][0]:
+                i += 1
+            else:
+                j += 1
+
+        return result
 
         # Compute the union of the two given inverted lists in linear
         # time (linear in the total number of entries in the two
@@ -175,41 +202,47 @@ class InvertedIndex:
     # If you want to implement some ranking refinements, make these
     # refinements optional (their use should be controllable via a
     # 'use_refinements' flag).
-    def process_query(self, keywords_query, use_refinements):
+    def process_query(self, keywords, use_refinements):
         """
-        InvertedIndex ii
-        ii.inverted_lists = {
-        "foo": [(1, 0.2), (3, 0.6)],
-        "bar": [(1, 0.4), (2, 0.7), (3, 0.5)]
-        "baz": [(2, 0.1)]
-        }
-        ii.process_query("foo bar", use_refinements=False)
-
+        >>> ii = InvertedIndex()
+        >>> ii.inverted_lists = {"foo": [(1, 0.2), (3, 0.6)], "bar":\
+ [(1, 0.4), (2, 0.7), (3, 0.5)], "baz": [(2, 0.1)]}
+        >>> ii.process_query("foo bar", use_refinements=False)
         [(3, 1.1), (2, 0.7), (1, 0.6)]
+
         """
 
-        merge_list = []
-        # first check if the keywords_query not an empty list
-        if len(keywords_query) == 0:
-            return None
+        if not keywords:
+            return []
 
-        # initialize the merge_list and check each intersection with
-        # each keyword
-        if keywords_query[0] in self.inverted_lists:
-            merge_list = self.inverted_lists[keywords_query[0]]
+        # Fetch the inverted lists for each of the given keywords.
+        lists = []
 
-        i = 1
-        while i < len(keywords_query):
-            if keywords_query[i] in self.inverted_lists:
-                merge_list = self.merge(merge_list,
-                                        self.inverted_lists
-                                        [keywords_query[i]])
+        for keyword in re.split("[^A-Za-z]+", keywords):
+            if keyword in self.inverted_lists:
+                lists.append(self.inverted_lists[keyword])
             else:
-                merge_list = []
+                # We can abort, because the intersection is empty
+                # (there is no inverted list for the word).
+                return []
 
-            i += 1
+        # Compute the intersection of all inverted lists.
+        if len(lists) == 0:
+            return []
 
-        return merge_list
+        intersected = lists[0]
+        for i in range(1, len(lists)):
+            intersected = self.merge(intersected, lists[i])
+
+        element = 0
+        for i in intersected:
+            intersected[element] = (intersected[element][0], round(i[1], 3))
+            element = element + 1
+
+        intersected = sorted(intersected, key=lambda tup: tup[1],
+                             reverse=True)
+
+        return intersected
 
 
 if __name__ == "__main__":
@@ -229,7 +262,11 @@ if __name__ == "__main__":
 
     while keyword != "end":
         #        keyword = input("give keyword querys\n")
-        keyword = raw_input("give keyword querys\n")
+        try:
+            input = raw_input
+        except NameError:
+            pass
+        keyword = input("give keyword querys\n")
         if keyword != "end":
             keywords_query.append(keyword)
 
