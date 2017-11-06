@@ -55,6 +55,7 @@ class InvertedIndex:
         >>> ii = InvertedIndex()
         >>> ii.read_from_file("example.txt", b=0, k=10000000)
         >>> sorted(ii.inverted_lists.items())
+
         [('animated', [(1, 0.415), (2, 0.415), (4, 0.415)]), ('animation', [(3, 2.0)]), ('film', [(2, 1.0), (4, 1.0)]), ('movie', [(1, 0.0), (2, 0.0), (3, 0.0), (4, 0.0)]), ('non', [(2, 2.0)]), ('short', [(3, 1.0), (4, 2.0)])]
 
         """
@@ -77,12 +78,10 @@ class InvertedIndex:
             record_id = 1
             for line in file:
                 tf = 1
-#                print("new line, tf = 1")
                 line = line.strip()
                 # Store the record as a tuple (title, description).
                 self.records.append(tuple(line.split("\t")))
 
-#                print(line)
                 dl = 0
                 for word in re.split("[^A-Za-z]+", line):
                     word = word.lower().strip()
@@ -94,51 +93,40 @@ class InvertedIndex:
                     if word not in self.inverted_lists:
                         # The word is seen for first time, create a new list.
                         tf = 1
-#             print("set record_id, tf = 1", (record_id, tf), "word, ", word)
                         self.inverted_lists[word] = [(record_id, tf)]
                     elif self.inverted_lists[word][-1] == (record_id, tf):
                         tf = tf + 1
-#                        print("tf = tf + 1", "word, ", word)
                         self.inverted_lists[word][-1] = (record_id, tf)
                         tf = 1
                     elif self.inverted_lists[word][-1] != (record_id, tf):
                         # Make sure that the list contains the id at most once.
                         self.inverted_lists[word].append((record_id, tf))
-#                        print("append, ", (record_id, tf), "word, ", word)
                 record_id += 1
                 avdl = avdl + dl
                 dls.append(dl)
 
             N = record_id - 1
             avdl = avdl / N
-            # print("N, ", N)
-            # print("avdl, ", avdl)
-            # print("dls, ", dls)
             bm25 = 0
             for key in self.inverted_lists:
-#                print("--------------------")
-#                print("self.inverted_lists[", key, "], ", self.inverted_lists[key])
                 df = len(self.inverted_lists[key])
-#                print("df, ", df)
                 counter = 0
                 for value in self.inverted_lists[key]:
-#                    print("value, ", value)
                     counter = counter + 1
                     tf = value[1]
                     dl = dls[value[0] - 1]
-#                    print("tf, ", tf)
-#                    print("dl, ", dl)
-                    bm25 = tf * (k + 1) / (k * (1 - b + b * dl / avdl) + tf) * math.log(N/df, 2)
-#                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
-                    self.inverted_lists[key][counter - 1] = (self.inverted_lists[key][counter - 1][0], round(bm25, 3))
-#                    print("self.inverted_lists[key][counter - 1], ", self.inverted_lists[key][counter - 1])
+                    bm25 = tf * (k + 1) / (k * (1 - b + b * dl / avdl) + tf)
+                    bm25 = bm25 * math.log(N/df, 2)
+                    self.inverted_lists[key][counter - 1] = (
+                        self.inverted_lists[key][counter - 1][0],
+                        round(bm25, 3)
+                    )
 
-
-
-        # Compute the union of the two given inverted lists in linear time (linear
-        # in the total number of entries in the two lists), where the entries in
-        # the inverted lists are postings of form (doc_id, bm25_score) and are
-        # expected to be sorted by doc_id, in ascending order.
+        # Compute the union of the two given inverted lists in linear
+        # time (linear in the total number of entries in the two
+        # lists), where the entries in the inverted lists are postings
+        # of form (doc_id, bm25_score) and are expected to be sorted
+        # by doc_id, in ascending order.
     def merge(self, list1, list2):
         """
         >>> ii = InvertedIndex()
@@ -179,14 +167,14 @@ class InvertedIndex:
                 list2_iter += 1
         return merge_list
 
-
-
-  # Process the given keyword query as follows: Fetch the inverted list for
-  # each of the keywords in the query and compute the union of all lists. Sort
-  # the resulting list by BM25 scores in descending order.
-  #
-  # If you want to implement some ranking refinements, make these refinements
-  # optional (their use should be controllable via a 'use_refinements' flag).
+    # Process the given keyword query as follows: Fetch the inverted
+    # list for each of the keywords in the query and compute the union
+    # of all lists. Sort the resulting list by BM25 scores in descending
+    # order.
+    #
+    # If you want to implement some ranking refinements, make these
+    # refinements optional (their use should be controllable via a
+    # 'use_refinements' flag).
     def process_query(self, keywords_query, use_refinements):
         """
         InvertedIndex ii
@@ -214,8 +202,8 @@ class InvertedIndex:
         while i < len(keywords_query):
             if keywords_query[i] in self.inverted_lists:
                 merge_list = self.merge(merge_list,
-                                                self.inverted_lists
-                                                [keywords_query[i]])
+                                        self.inverted_lists
+                                        [keywords_query[i]])
             else:
                 merge_list = []
 
@@ -247,11 +235,11 @@ if __name__ == "__main__":
 
     keywords_query = ii.process_query(keywords_query, False)
 
-
 # # Class for evaluating the InvertedIndex class against a benchmark.
 # class EvaluateInvertedIndex:
-#   # Read a benchmark from the given file. The expected format of the file is 
-#   # one query per line, with the ids of all documents relevant for that query,
+#   # Read a benchmark from the given file. The expected format of the
+#   # file is one query per line, with the ids of all documents
+#   # relevant for that query,
 #   # like: <query>TAB<id1>WHITESPACE<id2>WHITESPACE<id3> ...
 #   #
 #   # TEST CASE:
@@ -336,7 +324,6 @@ if __name__ == "__main__":
 #       >>> average_precision([7, 17, 9, 42, 5], {5, 7, 12, 42})
 #       [0.525]
 #       """
-      
 # # if __name__ == "__main__":
 #     # if len(sys.argv) != 2:
 #     #     print("Usage: python3 inverted_index.py <file name>")
