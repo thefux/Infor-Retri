@@ -168,7 +168,7 @@ class InvertedIndex:
         # iterate over the two list, and check for equality
         list1_iter = 0
         list2_iter = 0
-        while list1_iter != len(list1) and list2_iter != list2:
+        while list1_iter != len(list1) and list2_iter != len(list2):
             if list1[list1_iter][0] < list2[list2_iter][0]:
                 # Just append without adding up the scores if the item
                 # only occurs in list 1
@@ -221,28 +221,30 @@ class InvertedIndex:
         for keyword in re.split("[^A-Za-z]+", keywords):
             if keyword in self.inverted_lists:
                 lists.append(self.inverted_lists[keyword])
-            else:
+            # else:
                 # We can abort, because the intersection is empty
                 # (there is no inverted list for the word).
-                return []
+                # return []
 
         # Compute the intersection of all inverted lists.
         if len(lists) == 0:
             return []
 
-        intersected = lists[0]
+        print(lists)
+
+        merged = lists[0]
         for i in range(1, len(lists)):
-            intersected = self.merge(intersected, lists[i])
+            merged = self.merge(merged, lists[i])
 
         element = 0
-        for i in intersected:
-            intersected[element] = (intersected[element][0], round(i[1], 3))
+        for i in merged:
+            merged[element] = (merged[element][0], round(i[1], 3))
             element = element + 1
 
-        intersected = sorted(intersected, key=lambda tup: tup[1],
-                             reverse=True)
+        merged = sorted(merged, key=lambda tup: tup[1],
+                        reverse=True)
 
-        return intersected
+        return merged
 
 
 if __name__ == "__main__":
@@ -251,8 +253,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     file_name = sys.argv[1]
-    b = sys.argv[2]
-    k = sys.argv[3]
+    b = float(sys.argv[2])
+    k = float(sys.argv[3])
 
     ii = InvertedIndex()
     ii.read_from_file(file_name, b, k)
@@ -261,19 +263,19 @@ if __name__ == "__main__":
     keywords_query = []
 
     while keyword != "end":
-        #        keyword = input("give keyword querys\n")
         try:
             input = raw_input
         except NameError:
             pass
-        keyword = input("give keyword querys\n")
+        keyword = str(input("give keyword querys\n"))
         if keyword != "end":
             keywords_query.append(keyword)
 
-    keywords_query = ii.process_query(keywords_query, False)
+    keywords_query = ii.process_query(str(keywords_query), False)
+    print(keywords_query)
 
-# # Class for evaluating the InvertedIndex class against a benchmark.
-# class EvaluateInvertedIndex:
+    # Class for evaluating the InvertedIndex class against a benchmark.
+#    class EvaluateInvertedIndex:
 #   # Read a benchmark from the given file. The expected format of the
 #   # file is one query per line, with the ids of all documents
 #   # relevant for that query,
