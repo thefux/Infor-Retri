@@ -29,5 +29,5 @@ document length is very significant. That's why b was increased from
 0.75 to 0.75 * 1.4 = 1.05
 
 This configuration gave very good results with the keywords that we
-searched...x
+searched...
 
