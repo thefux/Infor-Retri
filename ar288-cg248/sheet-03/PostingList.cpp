@@ -180,9 +180,10 @@ PostingList PostingList::intersect(const PostingList& l1,
       size_t ub = l2.size();
       size_t mb;
 
-      while (l1.getId(i1) < std::numeric_limits<std::size_t>::max()) {
+      // while (l1.getId(i1) < std::numeric_limits<std::size_t>::max()) {
+      while (i1 < l1.size()) {
 	mb = (ub + lb) / 2;
-        while ((mb != lb + 1) && (l1.getId(i1) != l2.getId(mb))) {
+        while (l1.getId(i1) != l2.getId(mb)) {
           while (l1.getId(i1) < l2.getId(mb)) {
             mb = (lb + mb) / 2;
           }
@@ -190,7 +191,12 @@ PostingList PostingList::intersect(const PostingList& l1,
           while (l1.getId(i1) > l2.getId(mb)) {
             mb = (ub + mb) / 2;
           }
+
+	  if (mb == lb || lb + 1 == mb || ub == mb || mb == ub - 1) {
+	    goto next1;
+	  }
         }
+      next1:
         i1++;
 
 	if (l1.getId(i1) == l2.getId(mb)) {
@@ -208,9 +214,9 @@ PostingList PostingList::intersect(const PostingList& l1,
       size_t ub = l1.size();
       size_t mb = (ub + lb) / 2;
 
-      while (l2.getId(i2) < std::numeric_limits<std::size_t>::max()) {
+      while (i2 < l2.size()) {
 	mb = (ub + lb) / 2;
-        while ((mb != lb + 1) && (l2.getId(i2) != l1.getId(mb))) {
+        while (l2.getId(i2) != l1.getId(mb)) {
           while (l2.getId(i2) < l1.getId(mb)) {
             mb = (lb + mb) / 2;
           }
@@ -218,7 +224,12 @@ PostingList PostingList::intersect(const PostingList& l1,
           while (l2.getId(i2) > l1.getId(mb)) {
             mb = (ub + mb) / 2;
           }
+
+	  if (mb == lb || lb + 1 == mb || ub == mb || mb == ub - 1) {
+	    goto next2;
+	  }
         }
+      next2:
         i2++;
 
 	if (l1.getId(i2) == l2.getId(mb)) {
