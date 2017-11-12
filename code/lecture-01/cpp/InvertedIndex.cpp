@@ -23,7 +23,7 @@ void InvertedIndex::readFromFile(const string& fileName) {
     while (i <= line.size()) {
       // The > 0 so that we don't split at non-ascii chars.
       // It is very important that one can search for "björn" :-).
-      if (i == line.size() || (line[i] > 0 && !isalnum(line[i])))  {
+      if (i == line.size() || (line[i] > 0 && !isalpha(line[i])))  {
         if (i > start) {
           string word = getLowercase(line.substr(start, i - start));
           // Automatically default constructs a list if the

@@ -1,0 +1,33 @@
+There were some difficulties because one of us is new to python. Now
+exercise 1 works well though :-)
+
+We got the data set from: https://grouplens.org/datasets/movielens/
+
+Exercise 2:
+
+Each line has an ID, but some IDs/line nubmers are missing in this
+data set. As a result, the line numbers from our code don't correspond
+with the actual line numbers in the data set. In order to handle the
+problem with the missing IDs, we reduced the length of the data set to
+100 elements and inserted the missing line numbers...
+
+Insights from my experiences:
+The data sets are movie titles. Notice that movie description
+(document length) is quite short with respect to the title's
+length. Given that the title length makes up so much of the content,
+it is important to optimize the search engine towards titles.
+
+k:
+When searching a title, it is important that as many key words as
+possible occur in the title. This can be achieved with k = 0. Since
+about 40% of the content is titles, we reduced k from 1.75 to 0.6 *
+1.75 = 1.05
+
+b:
+As the titles and descriptions are quite short, a small difference in
+document length is very significant. That's why b was increased from
+0.75 to 0.75 * 1.4 = 1.05
+
+This configuration gave very good results with the keywords that we
+searched...x
+

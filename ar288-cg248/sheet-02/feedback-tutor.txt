@@ -1,0 +1,55 @@
+Hi Abderrahmen and Chandran,
+
+here is my feedback for your submission of exercise sheet 02:
+
+# ______________________________________________________________________________
+# Exercise 1: 6/8 Points
+
+1. (4/4):
+Looks good, nicely done. Tests are also there.
+
+Note that you should not round the values inside your method just to pass the tests.
+Instead round them in your doc tests.
+
+2. (1/2):
+Well done. However there was a small pitfall.
+If one list is bigger then the other your code will miss the remaining elements since the loop only
+traverses until one list is exhausted. You also need to add the remaining elements of the other list then.
+
+3. (1/2):
+Looks okay. You shouln't forget to adjust your comments "Compute the intersection of all inverted lists." :P
+
+However you return the wrong element. You return "merged" while only "merged[2]"
+contains the final result.
+That is also why your Jenkins test fails, it also contains the other lists at "merged[0]" and "merged[1]".
+
+# ______________________________________________________________________________
+# Exercise 2: 4/4 Points
+
+Well done, nice insights into your experiments!
+
+# ______________________________________________________________________________
+# Exercise 3: 0/8 Points
+
+1. (0/2):
+-
+
+2. (0/2):
+-
+
+3. (0/2):
+-
+
+4. (0/2):
+-
+
+# ______________________________________________________________________________
+# General:
+
+Well done. Next time you should start earlier such that you can also do the other exercise :)
+If you run into any problems please ask at the forum!
+
+Total: 10/20 Points
+
+Cheers
+Daniel Tischner (daniel-tischner@web.de)
