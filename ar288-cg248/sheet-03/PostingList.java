@@ -155,92 +155,122 @@ public class PostingList {
     PostingList result = new PostingList();
     result.reserve(Math.min(l1.size(), l2.size()));
 
-    return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, 0);
+    return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
 
 
     //return intersectZipper(l1, l2);
     }
 
-//  public static PostingList intersectBinarySearch(PostingList l1, PostingList l2) {
-//    // Swap to make sure l1 is smaller.
-//    if (l1.size() > l2.size()) {
-//      return intersectBinarySearch(l2, l1);
-//    }
-//
-//    int i1 = 0;
-//    int lb = 0;
-//    int ub = l2.size();
-//    int mb;
-//
-//    PostingList result = new PostingList();
-//    //result.reserve(l1.size());
-//
-//    System.out.println("Ping: Entering");
-//    while (l1.getId(i1) < Integer.MAX_VALUE) {
-//      mb = (ub + lb) / 2;
-//      System.out.println("    lb: " + lb + "    mb " + mb + "    ub " + ub);
-//      // Stuck
-//      while (l2.getId(mb) - l1.getId(i1) != 0) {
-//
-//        // while (l1.getId(i1) < l2.getId(mb)) {
-//        if (l1.getId(i1) < l2.getId(mb)) {
-//          mb = (lb + mb) / 2;
-//        }
-//
-//        // while (l1.getId(i1) > l2.getId(mb)) {
-//        if (l1.getId(i1) > l2.getId(mb)) {
-//          mb = (ub + mb) / 2;
-//        }
-//      }
-//
-//      System.out.println("l1: " + l1.getId(i1));
-//      System.out.println("l2: " + l2.getId(mb));
-//
-//      if (l1.getId(i1) == l2.getId(mb)) {
-//        //result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
-//
-//        // Only search the remainder of the list in the next
-//        // iteration.
-//        lb = mb;
-//      }
-//
-//      i1++;
-//    }
-//    return result;
-//  }
-//
+  public static PostingList intersectBinarySearchUsingSentinels(PostingList l1, PostingList l2) {
+    // Swap to make sure l1 is smaller.
+    if (l1.size() > l2.size()) {
+      return intersectBinarySearchUsingSentinels(l2, l1);
+    }
+
+    int i1 = 0;
+    int lb = 0;
+    int ub = l2.size();
+    int mb;
+    int old;
+    int switches = 0;
+
+    PostingList result = new PostingList();
+    result.reserve(l1.size());
+
+    System.out.println("Ping: Entering");
+    while (l1.getId(i1) < Integer.MAX_VALUE) {
+      switches = 0;
+      mb = (ub + lb) / 2;
+      System.out.println("    lb: " + lb + "    mb " + mb + "    ub " + ub);
+      // Stuck
+      while (l2.getId(mb) - l1.getId(i1) != 0 && switches < 2) {
+
+        while (l1.getId(i1) < l2.getId(mb) && switches < 2) {
+        // if (l1.getId(i1) < l2.getId(mb)) {
+          old = mb;
+          mb = (lb + mb) / 2;
+
+          if (old - mb < 2) {
+            switches++;
+          }
+        }
+
+        while (l1.getId(i1) > l2.getId(mb) && switches < 2) {
+        // if (l1.getId(i1) > l2.getId(mb)) {
+          old = mb;
+          mb = (ub + mb) / 2;
+
+          if (mb - old < 2) {
+            switches++;
+          }
+        }
+      }
+
+      System.out.println("l1: " + l1.getId(i1));
+      System.out.println("l2: " + l2.getId(mb));
+
+      if (l1.getId(i1) == l2.getId(mb)) {
+        result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
+
+        // Only search the remainder of the list in the next
+        // iteration.
+        lb = mb;
+      }
+
+      i1++;
+    }
+    return result;
+  }
 
 
-  public static PostingList intersectBinarySearch(PostingList l1, PostingList l2, int i1, int lb, int ub, int mb,
+  /**
+   *
+   * An intersect method using binary a recursive binary search. Notice that lower bound increases to ensure that
+   * only the remaining part of the list is searched in future iterations.
+   *
+   * l1 and l2 are swapped if l1 is longer than l2.
+   *
+   *
+   * @param l1
+   * The first (smaller) list.
+   * @param l2
+   * The second (larger) list.
+   * @param i1
+   * The current position in the shorter list.
+   * @param lb
+   * The (slowly increasing) lower bound of the range that still has to be searched.
+   * @param ub
+   * The (not changing) upper bound of the range that still has to be searched.
+   * @param mb
+   * The current position of the binary search.
+   * @param result
+   * The PostingList that is to be modified.
+   * @param switches
+   * A control variable that ensures that the recursion aborts and it doesn't toggle arround a non
+   * existant element the list that is to be searched. This variable also ensures that the last variable (Integer
+   * .MAX_VALUE) does not get added to the intersection.
+   * @return
+   * PostingList intersection of l1 and l2.
+   */
+  public static PostingList intersectBinarySearchRecursive(PostingList l1, PostingList l2, int i1, int lb, int ub,
+                                                           int mb,
                                                   PostingList result, int switches) {
 
     int old;
 
     // Swap to make sure l1 is smaller.
     if (l1.size() > l2.size()) {
-      return intersectBinarySearch(l2, l1, 0, 0, l1.size(), (0 + l1.size()) / 2, result, 0);
+      return intersectBinarySearchRecursive(l2, l1, 0, 0, l1.size(), (0 + l1.size()) / 2, result, 0);
     }
-
-    System.out.println("Looking for " + l1.getId(i1) + " in:");
-
-    for (int i = 0; i < l2.ids.length; i++) {
-      System.out.println("l2(" + i + ") = " + l2.getId(i));
-    }
-
-    System.out.println("    lb: " + lb + "    mb " + mb + "    ub " + ub);
-
-    System.out.println("size " + result.size() + "  getId " + result.getId(result.size()) + "  score " + result.getScore
-            (result.size()));
 
     if (l1.getId(i1) < l2.getId(mb)) {
         old = mb;
         mb = (lb + mb) / 2;
         if (switches < 2) {
-          if (-2 < (mb - old) && (mb - old) < 2) {
-            System.out.println("Switches: " + switches);
-            return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, ++switches);
+          if (old - mb < 2) {
+            return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, ++switches);
           } else {
-            return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, 0);
+            return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
           }
         }
     }
@@ -249,18 +279,16 @@ public class PostingList {
       old = mb;
       mb = (ub + mb) / 2;
       if (switches < 2) {
-        if (-2 < (mb - old) && (mb - old) < 2) {
-          System.out.println("Switches: " + switches);
-          return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, ++switches);
+        if (mb - old < 2) {
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, ++switches);
         } else {
-          return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, 0);
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
         }
       }
     }
 
     if (l1.getId(i1) == l2.getId(mb)) {
         result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
-        System.out.println("HIT!  " + "(" + l1.getId(i1) + ", " + (l1.getScore(i1) + l2.getScore(mb)) + ")");
         // Only search through the remaining list in future:
         lb = mb;
     }
@@ -268,7 +296,7 @@ public class PostingList {
 
     if (l1.getId(i1) < Integer.MAX_VALUE) {
       i1++;
-      return intersectBinarySearch(l1, l2, i1, lb, ub, mb, result, 0);
+      return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
     }
 
     return result;
