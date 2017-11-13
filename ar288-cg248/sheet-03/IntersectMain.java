@@ -45,13 +45,13 @@ public class IntersectMain {
         PostingList list = PostingList.intersectBaseline(lists[i], lists[j]);
         long time2 = System.nanoTime();
         long time = (time2 - time1) / 1000;
-        System.out.print("  Time needed: " + time + "μs. ");
+        System.out.print("  Time needed: " + time + "us. ");
         System.out.println("Result size: " + list.size());
         totalTime += time;
         totalRuns++;
       }
     }
     System.out.println();
-    System.out.println("Average time: " + (totalTime / totalRuns) + "μs.");
+    System.out.println("Average time: " + (totalTime / totalRuns) + "us.");
   }
 }
