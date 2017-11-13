@@ -94,11 +94,9 @@ public class PostingListTest {
   }
 
   /**
-   * Tests for the method intersectBinarySearchRecursive().
-   *
-   * Notice that lower bound increases to ensure that only the remaining part of the list is searched in future
-   * iterations.
-   *
+   * Tests for the method intersectBinarySearchRecursive(). Notice that lower
+   * bound increases to ensure that only the remaining part of the list is
+   * searched in future iterations.
    */
   @Test
   public void testIntersectBinarySearchRecursive() {
@@ -117,7 +115,8 @@ public class PostingListTest {
     PostingList result = new PostingList();
     result.reserve(Math.min(l1.size(), l2.size()));
 
-    PostingList result1 = PostingList.intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, -1);
+    PostingList result1 = PostingList.intersectBinarySearchRecursive(l1, l2,
+            i1, lb, ub, mb, result, -1, 0);
     Assert.assertEquals("[(2, 9), (6, 5)]", result1.toString());
 
     lb = i1 = 0;
@@ -125,7 +124,28 @@ public class PostingListTest {
     mb = (ub + lb) / 2;
     result.reserve(Math.min(l1.size(), l3.size()));
 
-    PostingList result2 = PostingList.intersectBinarySearchRecursive(l1, l3, i1, lb, ub, mb, result, -1);
+    PostingList result2 = PostingList.intersectBinarySearchRecursive(l1, l3,
+            i1, lb, ub, mb, result, -1, 0);
+    Assert.assertEquals("[]", result2.toString());
+  }
+
+  /**
+   * Tests for the method intersectBinarySearchRecursive(). Notice that lower
+   * bound increases to ensure that only the remaining part of the list is
+   * searched in future iterations.
+   */
+  @Test
+  public void testIntersectGallopingBinarySearch() {
+    PostingList l1 = new PostingList();
+    PostingList l2 = new PostingList();
+    PostingList l3 = new PostingList();
+    l1.readFromFile("example1.txt");
+    l2.readFromFile("example2.txt");
+    l3.readFromFile("example3.txt");
+
+    PostingList result1 = PostingList.intersectGallopingBinarySearch(l1, l2);
+    PostingList result2 = PostingList.intersectGallopingBinarySearch(l1, l3);
+    Assert.assertEquals("[(2, 9), (6, 5)]", result1.toString());
     Assert.assertEquals("[]", result2.toString());
   }
 

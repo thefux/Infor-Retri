@@ -37,13 +37,14 @@ public class PostingList {
 
   /**
    * Reads a posting list from the given file.
-   * 
+   *
    * @param fileName
    *        The path to the file to read.
    */
   public void readFromFile(String fileName) {
-      Charset charset = Charset.forName("UTF-8");
-      try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName), charset)) {
+    Charset charset = Charset.forName("UTF-8");
+    try (BufferedReader br = Files.newBufferedReader(Paths.get(fileName),
+            charset)) {
       // Read the number of postings in the file from the first line.
       int numPostings = Integer.parseInt(br.readLine());
 
@@ -61,9 +62,9 @@ public class PostingList {
         // Add the posting (id, score) to this list.
         addPosting(id, score);
       }
-        addPosting(Integer.MAX_VALUE, 0);
-        this.numPostings = this.numPostings - 1;
-      } catch (IOException e) {
+      addPosting(Integer.MAX_VALUE, 0);
+      this.numPostings = this.numPostings - 1;
+    } catch (IOException e) {
       System.err.println("Couldn't read the file: " + e.getMessage());
       System.exit(1);
     }
@@ -73,7 +74,7 @@ public class PostingList {
 
   /**
    * Intersects the two given posting lists using the basic "zipper" algorithm.
-   * 
+   *
    * @param l1
    *        The first posting list.
    * @param l2
@@ -126,8 +127,10 @@ public class PostingList {
   /**
    * Intersects the two given posting lists using an improved algorithm that
    * uses at least three non-trivial ideas presented in the lecture.
-   *
-   * 1. Sentinels
+   * 1. Sentinels.
+   * 2. BinarySearch (with sentinels and recursive).
+   * 3. BinarySearch with shifting lower bound.
+   * 4. Galloping search.
    *
    * @param l1
    *        The first posting list.
@@ -138,30 +141,64 @@ public class PostingList {
    */
   public static PostingList intersect(PostingList l1, PostingList l2) {
 
-//    if (l1.size() < l2.size()) {
-//      int k = l1.size();
-//      int n = l2.size();
-//
-//    } else {
-//      int k = l2.size();
-//      int n = l1.size();
-//    }
+    int sw = 1;
+    //    if (l1.size() < l2.size()) {
+    //      int k = l1.size();
+    //      int n = l2.size();
+    //
+    //    } else {
+    //      int k = l2.size();
+    //      int n = l1.size();
+    //    }
 
-    int i1 = 0;
-    int lb = 0;
-    int ub = l2.size();
-    int mb = (ub + lb) / 2;
+    switch (sw) {
+      // Recursive binary search O(k * log(n)). Makes use of a shrinking list
+      // to be searched:
+      case 1 :
+        int i1 = 0;
+        int lb = 0;
+        int ub = l2.size();
+        int mb = (ub + lb) / 2;
 
-    PostingList result = new PostingList();
-    result.reserve(Math.min(l1.size(), l2.size()));
+        PostingList result = new PostingList();
+        result.reserve(Math.min(l1.size(), l2.size()));
+        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result,
+                0, 0);
 
-    return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
+      // Binary search with loops instead of recursion. Makes use of a
+      // shrinking list to be searched. O(k * log(n))
+      case 2 :
+        return intersectBinarySearchUsingSentinels(l1, l2);
 
+      // Galloping search O(k * log(1 + n / k)).
+      case 3:
+        return intersectGallopingBinarySearch(l1, l2);
 
-    //return intersectZipper(l1, l2);
+      default :
+        break;
     }
+    return intersectZipper(l1, l2);
+  }
 
-  public static PostingList intersectBinarySearchUsingSentinels(PostingList l1, PostingList l2) {
+  /**
+   * Intersect the binary two posting lists using a binary search. Sentinels
+   * are also used, but it was not possible to completely avoid if
+   * statements because control variables were needed to avoid getting stuck
+   * in loops. The lists are swapped if l1 is longer than l2...
+   *
+   * @param l1
+   * list 1.
+   *
+   * @param l2
+   * list 2.
+   *
+   * @return
+   * PostingList intersection of the two PostingLists l1 and l2.
+   */
+  public static PostingList intersectBinarySearchUsingSentinels(
+          PostingList l1,
+          PostingList
+                  l2)  {
     // Swap to make sure l1 is smaller.
     if (l1.size() > l2.size()) {
       return intersectBinarySearchUsingSentinels(l2, l1);
@@ -186,7 +223,7 @@ public class PostingList {
       while (l2.getId(mb) - l1.getId(i1) != 0 && switches < 2) {
 
         while (l1.getId(i1) < l2.getId(mb) && switches < 2) {
-        // if (l1.getId(i1) < l2.getId(mb)) {
+          // if (l1.getId(i1) < l2.getId(mb)) {
           old = mb;
           mb = (lb + mb) / 2;
 
@@ -196,7 +233,7 @@ public class PostingList {
         }
 
         while (l1.getId(i1) > l2.getId(mb) && switches < 2) {
-        // if (l1.getId(i1) > l2.getId(mb)) {
+          // if (l1.getId(i1) > l2.getId(mb)) {
           old = mb;
           mb = (ub + mb) / 2;
 
@@ -224,12 +261,10 @@ public class PostingList {
 
 
   /**
-   *
-   * An intersect method using binary a recursive binary search. Notice that lower bound increases to ensure that
-   * only the remaining part of the list is searched in future iterations.
-   *
-   * l1 and l2 are swapped if l1 is longer than l2.
-   *
+   * An intersect method using binary a recursive binary search. Notice that
+   * lower bound increases to ensure that only the remaining part of the list
+   * is searched in future iterations. l1 and l2 are swapped if l1 is longer
+   * than l2.
    *
    * @param l1
    * The first (smaller) list.
@@ -238,7 +273,8 @@ public class PostingList {
    * @param i1
    * The current position in the shorter list.
    * @param lb
-   * The (slowly increasing) lower bound of the range that still has to be searched.
+   * The (slowly increasing) lower bound of the range that still has to be
+    searched.
    * @param ub
    * The (not changing) upper bound of the range that still has to be searched.
    * @param mb
@@ -246,33 +282,44 @@ public class PostingList {
    * @param result
    * The PostingList that is to be modified.
    * @param switches
-   * A control variable that ensures that the recursion aborts and it doesn't toggle arround a non
-   * existant element the list that is to be searched. This variable also ensures that the last variable (Integer
-   * .MAX_VALUE) does not get added to the intersection.
+   * A control variable that ensures that the recursion aborts and it doesn't
+    toggle arround a non existant element the list that is to be searched.
+    This variable also ensures that the last variable (Integer.MAX_VALUE)
+    does not get added to the intersection.
+   * @param state
+   * A control variable to decide if it should operate as a recursive binary
+   * search in O(k * log(n)) or if it should operate as a part of my
+   * galloping binary search...
    * @return
    * PostingList intersection of l1 and l2.
    */
-  public static PostingList intersectBinarySearchRecursive(PostingList l1, PostingList l2, int i1, int lb, int ub,
-                                                           int mb,
-                                                  PostingList result, int switches) {
-
+  public static PostingList intersectBinarySearchRecursive(PostingList l1,
+                                                           PostingList l2,
+                                                           int i1, int lb,
+                                                           int ub, int mb,
+                                                           PostingList result,
+                                                           int switches, int
+                                                                   state) {
     int old;
 
     // Swap to make sure l1 is smaller.
     if (l1.size() > l2.size()) {
-      return intersectBinarySearchRecursive(l2, l1, 0, 0, l1.size(), (0 + l1.size()) / 2, result, 0);
+      return intersectBinarySearchRecursive(l2, l1, 0, 0, l1.size(), (0
+              + l1.size()) / 2, result, 0, state);
     }
 
     if (l1.getId(i1) < l2.getId(mb)) {
-        old = mb;
-        mb = (lb + mb) / 2;
-        if (switches < 2) {
-          if (old - mb < 2) {
-            return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, ++switches);
-          } else {
-            return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
-          }
+      old = mb;
+      mb = (lb + mb) / 2;
+      if (switches < 2) {
+        if (old - mb < 2) {
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                  result, ++switches, state);
+        } else {
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                  result, 0, state);
         }
+      }
     }
 
     if (l1.getId(i1) > l2.getId(mb)) {
@@ -280,27 +327,30 @@ public class PostingList {
       mb = (ub + mb) / 2;
       if (switches < 2) {
         if (mb - old < 2) {
-          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, ++switches);
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                  result, ++switches, state);
         } else {
-          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
+          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                  result, 0, state);
         }
       }
     }
 
     if (l1.getId(i1) == l2.getId(mb)) {
-        result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
-        // Only search through the remaining list in future:
-        lb = mb;
+      result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
+      // Only search through the remaining list in future:
+      lb = mb;
     }
 
-
-    if (l1.getId(i1) < Integer.MAX_VALUE) {
+    if (l1.getId(i1) < Integer.MAX_VALUE && state == 0) {
       i1++;
-      return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result, 0);
+      return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result,
+              0, state);
     }
 
     return result;
   }
+
 
   /**
    * Intersects the two given posting lists using an improved algorithm that
@@ -341,12 +391,61 @@ public class PostingList {
     return result;
   }
 
+  public static PostingList intersectGallopingBinarySearch(PostingList l1,
+                                                           PostingList l2) {
+    // Swap to make sure l1 is smaller.
+    if (l1.size() > l2.size()) {
+      return intersectGallopingBinarySearch(l2, l1);
+    }
+
+    PostingList result = new PostingList();
+    result.reserve(Math.min(l1.size(), l2.size()));
+
+    int i1 = 0;
+    int i2 = 0;
+    int lb = 0;
+    int mb = 0;
+    int ub = 0;
+    int jump = 1;
+
+
+    while (l1.getId(i1) < Integer.MAX_VALUE) {
+      i2 = lb;
+      jump = 0;
+
+      // Something wrong here:
+//      while (l1.getId(i1) > l2.getId(i2)) {
+//        if (jump > 2) {
+//          lb = i2;
+//        }
+//        i2 = i2 + jump;
+//        jump = 2 * jump;
+////        while (i2 + jump > l2.size()) {
+////          jump = jump / 2;
+////        }
+//        if (i2 > l2.size()) {
+//          i2 = l2.size();
+//          break;
+//        }
+//      }
+
+      ub = i2;
+      mb = (lb + ub) / 2;
+
+      result = intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result,
+              0, 1);
+      i1++;
+    }
+
+    return result;
+  }
+
 
   // ==========================================================================
 
   /**
    * Reserves space for n postings in this list.
-   * 
+   *
    * @param n
    *        The number of postings.
    */
@@ -359,7 +458,7 @@ public class PostingList {
 
   /**
    * Adds the given posting to this list.
-   * 
+   *
    * @param id
    *        The id of the posting.
    * @param score
@@ -373,10 +472,10 @@ public class PostingList {
 
   /**
    * Returns the id of the i-th posting.
-   * 
+   *
    * @param i
    *        The index of the posting.
-   * 
+   *
    * @return The id of the i-th posting.
    */
   public int getId(int i) {
@@ -385,10 +484,10 @@ public class PostingList {
 
   /**
    * Returns the score of the i-th posting.
-   * 
+   *
    * @param i
    *        The index of the posting.
-   * 
+   *
    * @return The score of the i-th posting.
    */
   public int getScore(int i) {
@@ -397,7 +496,7 @@ public class PostingList {
 
   /**
    * Returns the number of postings in this list.
-   * 
+   *
    * @return The number of postings in this list.
    */
   public int size() {
