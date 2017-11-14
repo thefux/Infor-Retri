@@ -20,7 +20,8 @@ public class IntersectMain {
     }
 
     int numLists = args.length;
-    long totalTime = 0;
+    long totalTimeBaseLine = 0;
+    long totalIntersect = 0;
     int totalRuns = 0;
 
     // Read the posting lists.
@@ -34,24 +35,41 @@ public class IntersectMain {
       System.out.println("Done. Size: " +  lists[i].size() + ".");
     }
 
-    // Intersect the lists pairwise.
-    System.out.println();
-    for (int i = 0; i < numLists; i++) {
-      for (int j = 0; j < i; j++) {
-        System.out.println("Intersect '" + args[i] + "' & '" + args[j] + "'.");
+    for (int rounds = 0; rounds < 5; rounds++) {
 
-        // Intersect lists[i] and lists[j] using the baseline.
-        long time1 = System.nanoTime();
-        PostingList list = PostingList.intersectBaseline(lists[i], lists[j]);
-        long time2 = System.nanoTime();
-        long time = (time2 - time1) / 1000;
-        System.out.print("  Time needed: " + time + "us. ");
-        System.out.println("Result size: " + list.size());
-        totalTime += time;
-        totalRuns++;
+      // Intersect the lists pairwise.
+      System.out.println();
+      for (int i = 0; i < numLists; i++) {
+        for (int j = 0; j < i; j++) {
+          System.out.println("Intersect '" + args[i] + "' & '" + args[j] + "'.");
+
+          // Intersect lists[i] and lists[j] using the baseline.
+          long time1 = System.nanoTime();
+          PostingList list = PostingList.intersectBaseline(lists[i], lists[j]);
+          long time2 = System.nanoTime();
+          long timeBaseLine = (time2 - time1) / 1000;
+          System.out.print("  Time needed: " + timeBaseLine + "us. ");
+          System.out.println("Result size: " + list.size());
+          totalTimeBaseLine += timeBaseLine;
+
+          // Intersect lists[i] and lists[j] using the intersect.
+          long time3 = System.nanoTime();
+          PostingList list2 = PostingList.intersect(lists[i], lists[j]);
+          long time4 = System.nanoTime();
+          long timeIntersect = (time4 - time3) / 1000;
+          System.out.print("  Time needed: " + timeIntersect + "us. ");
+          System.out.println("Result size: " + list2.size());
+          totalIntersect += timeIntersect;
+          totalRuns++;
+        }
       }
     }
+
     System.out.println();
-    System.out.println("Average time: " + (totalTime / totalRuns) + "us.");
+    System.out.println("Average baseline time: " + (totalTimeBaseLine /
+            totalRuns) + "us" + ".");
+    System.out.println();
+    System.out.println("Average intersect time: " + (totalIntersect /
+            totalRuns) + "us" + ".");
   }
 }

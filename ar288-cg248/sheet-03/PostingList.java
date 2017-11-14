@@ -33,6 +33,11 @@ public class PostingList {
    */
   protected int numPostings;
 
+  /**
+   * The lower bound in this list.
+   */
+  double lb = 0;
+
   // ==========================================================================
 
   /**
@@ -156,31 +161,31 @@ public class PostingList {
     }
 
     // time of 0
-    double zip_worst = n + k;
+    double zipWorst = n + k;
 
     // time of 1 and 2
-    // double bin_best = k * (Math.log(n) / Math.log(2));
-    double bin_worst = k * (Math.log(n - k) / Math.log(2));
+    // double binBest = k * (Math.log(n) / Math.log(2));
+    double binWorst = k * (Math.log(n - k) / Math.log(2));
 
     // time of 1 and 2
-    double galloping_bin = k * (Math.log(n) / Math.log(2) - k);
+    double gallopingBin = k * (Math.log(n) / Math.log(2) - k);
 
-    double best = Math.min(zip_worst, bin_worst);
-    best = Math.min(best, galloping_bin);
+    double best = Math.min(zipWorst, binWorst);
+    best = Math.min(best, gallopingBin);
 
     // Highest complexity (not assymptotic complexity).
-    if (galloping_bin == best) {
+    if (gallopingBin == best) {
       sw = 3;
     }
 
     // Medium complexity (not assymptotic complexity).
-    if (bin_worst == best) {
+    if (binWorst == best) {
       // 1 or 2, whichever is faster...
       sw = 2;
     }
 
     // Smallest complexity (not assymptotic complexity).
-    if (zip_worst == best) {
+    if (zipWorst == best) {
       sw = 0;
     }
 
@@ -221,17 +226,21 @@ public class PostingList {
   }
 
   /**
+   * <p>
    * Intersect the binary two posting lists using a binary search. Sentinels
    * are also used, but it was not possible to completely avoid if
    * statements because control variables were needed to avoid getting stuck
-   * in loops. The lists are swapped if l1 is longer than l2...
+   * in loops. The lists are swapped if l1 is longer than l2...</p>
    *
+   * <p>
    * Worst case scenario:
    * l1 = [1, 2, 3, 4, 5, 6, 7]       k elements
-   * l2 = [1, 2, 3, 4, 5, 6, 7, 8]    m = log_2(n) elements
+   * l2 = [1, 2, 3, 4, 5, 6, 7, 8]    m = log_2(n) elements </p>
    *
+   * <p>
    * => Number of steps: log_2(n - 0) + log_2(n - 1) + ... + log_2(n - k)
    * => Worse than k * log_2(n - k)
+   *</p>
    *
    * @param l1
    * list 1.
@@ -317,7 +326,7 @@ public class PostingList {
    * The current position in the shorter list.
    * @param lb
    * The (slowly increasing) lower bound of the range that still has to be
-    searched.
+  searched.
    * @param ub
    * The (not changing) upper bound of the range that still has to be searched.
    * @param mb
@@ -326,24 +335,26 @@ public class PostingList {
    * The PostingList that is to be modified.
    * @param switches
    * A control variable that ensures that the recursion aborts and it doesn't
-    toggle arround a non existant element the list that is to be searched.
-    This variable also ensures that the last variable (Integer.MAX_VALUE)
-    does not get added to the intersection.
+  toggle arround a non existant element the list that is to be searched.
+  This variable also ensures that the last variable (Integer.MAX_VALUE)
+  does not get added to the intersection.
    * @param state
    * A control variable to decide if it should operate as a recursive binary
-   * search in O(k * log(n)) or if it should operate as a part of my
-   * galloping binary search...
+  search in O(k * log(n)) or if it should operate as a part of my
+  galloping binary search...
    * @return
    * PostingList intersection of l1 and l2.
    */
   public static PostingList intersectBinarySearchRecursive(PostingList l1,
                                                            PostingList l2,
-                                                           int i1, int lb,
-                                                           int ub, int mb,
+                                                           double i1, double lb,
+                                                           double ub, double mb,
                                                            PostingList result,
-                                                           int switches, int
-                                                                   state) {
-    int old;
+                                                           double switches,
+                                                           double state) {
+    double old;
+
+    System.out.println("\n Searching for: " + Math.round(l1.getId((int) i1)));
 
     // Swap to make sure l1 is smaller.
     if (l1.size() > l2.size()) {
@@ -351,48 +362,94 @@ public class PostingList {
               + l1.size()) / 2, result, 0, state);
     }
 
-    if (l1.getId(i1) < l2.getId(mb)) {
+    if (l1.getId((int) Math.round(i1)) < l2.getId((int) Math.round(mb))) {
       old = mb;
-      mb = (lb + mb) / 2;
+      mb = (lb + mb) / 2.0;
+
+//      if (mb != switches) {
+//        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+//                result, old, state);
+//      }
+
+      System.out.println("old: " + old + "  mb: " + mb + "  switches: " +
+              switches);
+
       if (switches < 2) {
-        if (old - mb < 2) {
+        // If we are stuck in a recursion due to odd numbers.
+        if ((ub + mb) / 2 == old || (lb + mb) / 2 == old) {
+          System.out.println("Ping1");
+          // Make it an even number.
+          //mb = mb + 1;
+//        if (old - mb < 2) {
+//        if ((old - mb < 2) || (l1.getId(i1) > l2.getId((ub + mb) / 2))) {
+          //if (mb - lb < 2) {
           return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
                   result, ++switches, state);
         } else {
+          System.out.println("Ping2");
           return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-                  result, 0, state);
+                  result, switches, state);
         }
       }
     }
 
-    if (l1.getId(i1) > l2.getId(mb)) {
+    if (l1.getId((int) Math.round(i1)) > l2.getId((int) Math.round(mb))) {
       old = mb;
-      mb = (ub + mb) / 2;
+      mb = ((ub + mb) / 2);
+
+
+//      if ((((double) ub + (double) mb) / 2.0 - (double) ((ub + mb) / 2)) >=
+//              0.5) {
+//        mb = ((ub + mb) / 2) + 1;
+//      } else {
+//        mb = ((ub + mb) / 2);
+//      }
+//
+//      if (mb != switches) {
+//        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+//                result, old, state);
+//      }
+
+      System.out.println("old: " + old + "  mb: " + mb + "  switches: " +
+              switches);
+
       if (switches < 2) {
-        if (mb - old < 2) {
+        // If we are stuck in a recursion due to odd numbers.
+        if ((ub + mb) / 2 == old || (lb + mb) / 2 == old) {
+          System.out.println("Ping3");
+          // Make it an even number:
+          //mb = mb - 1;
+//        if (mb - old < 2) {
+//          if ((ub - lb)(ub - mb) < 2) {
           return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
                   result, ++switches, state);
         } else {
+          System.out.println("Ping4");
           return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-                  result, 0, state);
+                  result, switches, state);
         }
       }
     }
+//    }
 
-    if (l1.getId(i1) == l2.getId(mb)) {
-      result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
+    if (l1.getId((int) Math.round(i1)) == l2.getId((int) Math.round(mb))) {
+      result.addPosting(l1.getId((int) Math.round(i1)), l1.getScore((int)
+              Math.round(i1)) + l2.getScore((int) Math.round(mb)));
       // Only search through the remaining list in future:
-      lb = mb;
+      result.lb = mb;
     }
 
-    if (l1.getId(i1) < Integer.MAX_VALUE && state == 0) {
+    if (l1.getId((int) Math.round(i1)) < Integer.MAX_VALUE && state == 0) {
       i1++;
       return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result,
               0, state);
     }
 
+
     return result;
   }
+
+
 
 
   /**
@@ -435,43 +492,61 @@ public class PostingList {
   }
 
   /**
+   * <p>
    * Intersect with a galloping + binary search.
    * Looking for 5 in: l2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+   *</p>
    *
+   * <p>
    * Galloping:
    * step   state
    * 0.     [1] < [5]
    * 1.     [2] < [5]
    * 2.     [4] < [5]
    * 3.     [8] > [5]
+   *</p>
    *
+   * <p>
    *        Binary:       Linear:
    * step   state         state
    * 4.     [6] > [5]     [7] > [5]
    * 5.     [5] = [5]     [6] > [5]
    * 6.     done          [5] = [5]
    * 7.     done          done
+   *</p>
    *
+   *<p>
    * => Binary search between 4 and 8 rather than linear search between 4 and 8.
    * The linear search would have taken 5 steps => Worst case scenario: O(n)
    * The binary search takes 5 steps => Worst case scenario: less than O(n)
+   *</p>
    *
+   * <p>
    * In the worst case scenario:
+   *</p>
    *
+   * <p>
    * l2 has n = 2^m elements and the element to be found is positioned at place
    * n_i = 2^(m -1) + 2^(0).
+   *</p>
    *
+   * <p>
    * First the galloping search would have to do log_2(2^m) = m steps. Then
    * the binary search would have to do log_2(2^(m-1)) = m - 1 steps in order
    * to find n_i.
+   * </p>
    *
+   *<p>
    * This means a maximum of 2m - 1 steps must be taken, where m = log_2(n).
+   *</p>
    *
+   * <p>
    * => The galloping binary search is in O(2*log_2(n) - 1) = O(log_2(n)).
-   *
+   *</p>
+   *<p>
    * When repeated k times, the run time is O(k * (2*log_2(n) - 1)) = O(k *
    * log_2(n) - k)
-   *
+   *</p>
    * @param l1
    * PostingList 1.
    * @param l2
