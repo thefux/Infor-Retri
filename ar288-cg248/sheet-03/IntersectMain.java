@@ -35,13 +35,14 @@ public class IntersectMain {
       System.out.println("Done. Size: " +  lists[i].size() + ".");
     }
 
-    for (int rounds = 0; rounds < 5; rounds++) {
 
-      // Intersect the lists pairwise.
-      System.out.println();
-      for (int i = 0; i < numLists; i++) {
-        for (int j = 0; j < i; j++) {
-          System.out.println("Intersect '" + args[i] + "' & '" + args[j] + "'.");
+    // Intersect the lists pairwise.
+    System.out.println();
+    for (int i = 0; i < numLists; i++) {
+      for (int j = 0; j < i; j++) {
+        for (int rounds = 0; rounds < 5; rounds++) {
+          System.out.println("Intersect '" + args[i] + "' & '" + args[j] + "'"
+                  + ".");
 
           // Intersect lists[i] and lists[j] using the baseline.
           long time1 = System.nanoTime();
@@ -62,14 +63,15 @@ public class IntersectMain {
           totalIntersect += timeIntersect;
           totalRuns++;
         }
+        System.out.println("\n Average baseline time: " + (totalTimeBaseLine
+                / totalRuns) + "us" + ".");
+        System.out.println("\n Average intersect time: " + (totalIntersect
+                / totalRuns) + "us" + ".");
       }
     }
-
-    System.out.println();
-    System.out.println("Average baseline time: " + (totalTimeBaseLine /
-            totalRuns) + "us" + ".");
-    System.out.println();
-    System.out.println("Average intersect time: " + (totalIntersect /
-            totalRuns) + "us" + ".");
+    System.out.println("\n Overall average baseline time: " + (totalTimeBaseLine
+            / totalRuns) + "us" + ".");
+    System.out.println("\n Overall average intersect time: " + (totalIntersect
+            / totalRuns) + "us" + ".");
   }
 }

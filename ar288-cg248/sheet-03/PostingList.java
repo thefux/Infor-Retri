@@ -33,11 +33,6 @@ public class PostingList {
    */
   protected int numPostings;
 
-  /**
-   * The lower bound in this list.
-   */
-  int lb = 0;
-
   // ==========================================================================
 
   /**
@@ -130,12 +125,22 @@ public class PostingList {
   // implementation.
 
   /**
+   * <p>
    * Intersects the two given posting lists using an improved algorithm that
    * choses from four non-trivial ideas presented in the lecture.
+   * </p>
+   *
+   * <p>
+   *     Note: I just noticed that I have runtime issues related to the
+   *     halting problem. My runtime calculations don't take this into account!
+   * </p>
+   *
+   * <p>
    * 1. Sentinels.
    * 2. BinarySearch (with sentinels and recursive).
    * 3. BinarySearch with shifting lower bound.
    * 4. Galloping binary search.
+   *</p>
    *
    * @param l1
    *        The first posting list.
@@ -188,6 +193,8 @@ public class PostingList {
     if (zipWorst == best) {
       sw = 0;
     }
+
+    // sw = 0;
 
     switch (sw) {
       // Recursive binary search.
@@ -354,7 +361,7 @@ public class PostingList {
                                                                    state) {
     int old;
 
-    System.out.println("\n Searching for: " + l1.getId(i1));
+    //    System.out.println("\n Searching for: " + l1.getId(i1));
 
     // Swap to make sure l1 is smaller.
     if (l1.size() > l2.size()) {
@@ -366,31 +373,13 @@ public class PostingList {
       old = mb;
       mb = (lb + mb) / 2;
 
-//      if (mb != switches) {
-//        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-//                result, old, state);
-//      }
+      //      System.out.println("old: " + old + "  mb: " + mb + "  switches:
+      // " + switches);
 
-      System.out.println("old: " + old + "  mb: " + mb + "  switches: " +
-              switches);
-
-//      if (switches < 2) {
+      //      if (switches < 4) {
       if (switches < Math.log(ub - lb) / Math.log(2)) {
-        // If we are stuck in a recursion due to odd numbers.
-//        if ((ub + mb) / 2 == old || (lb + mb) / 2 == old || mb - old == 1) {
-//          System.out.println("Ping1");
-          // Make it an even number.
-          //mb = mb + 1;
-//        if (old - mb < 2) {
-//        if ((old - mb < 2) || (l1.getId(i1) > l2.getId((ub + mb) / 2))) {
-          //if (mb - lb < 2) {
-          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-                  result, ++switches, state);
-//        } else {
-//          System.out.println("Ping2");
-//          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-//                  result, switches, state);
-//        }
+        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                result, ++switches, state);
       }
     }
 
@@ -398,46 +387,20 @@ public class PostingList {
       old = mb;
       mb = ((ub + mb) / 2);
 
+      //      System.out.println("old: " + old + "  mb: " + mb + "  switches:
+      // " + switches);
 
-//      if ((((double) ub + (double) mb) / 2.0 - (double) ((ub + mb) / 2)) >=
-//              0.5) {
-//        mb = ((ub + mb) / 2) + 1;
-//      } else {
-//        mb = ((ub + mb) / 2);
-//      }
-//
-//      if (mb != switches) {
-//        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-//                result, old, state);
-//      }
-
-      System.out.println("old: " + old + "  mb: " + mb + "  switches: " +
-              switches);
-
-//      if (switches < 2) {
+      //      if (switches < 4) {
       if (switches < Math.log(ub - lb) / Math.log(2)) {
-        // If we are stuck in a recursion due to odd numbers.
-//        if ((ub + mb) / 2 == old || (lb + mb) / 2 == old || mb - old == 1) {
-//          System.out.println("Ping3");
-          // Make it an even number:
-          //mb = mb - 1;
-//        if (mb - old < 2) {
-//          if ((ub - lb)(ub - mb) < 2) {
-          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-                  result, ++switches, state);
-//        } else {
-//          System.out.println("Ping4");
-//          return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
-//                  result, switches, state);
-//        }
+        return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb,
+                result, ++switches, state);
       }
     }
-//    }
 
     if (l1.getId(i1) == l2.getId(mb)) {
       result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getScore(mb));
       // Only search through the remaining list in future:
-      result.lb = mb;
+      lb = mb;
     }
 
     if (l1.getId(i1) < Integer.MAX_VALUE && state == 0) {

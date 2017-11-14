@@ -1,0 +1,67 @@
+
+The data that I posted on the wiki:
+Reading list '../postinglists/bowling.txt' ... Done. Size: 131068.
+Reading list '../postinglists/rug.txt' ... Done. Size: 5132.
+Reading list '../postinglists/film.txt' ... Done. Size: 1983510.
+
+Intersect '../postinglists/rug.txt' & '../postinglists/bowling.txt'.
+  Time needed: 14310us. Result size: 23
+  Time needed: 11504us. Result size: 23
+Intersect '../postinglists/rug.txt' & '../postinglists/bowling.txt'.
+  Time needed: 16066us. Result size: 23
+  Time needed: 333us. Result size: 23
+Intersect '../postinglists/rug.txt' & '../postinglists/bowling.txt'.
+  Time needed: 120us. Result size: 23
+  Time needed: 252us. Result size: 23
+Intersect '../postinglists/rug.txt' & '../postinglists/bowling.txt'.
+  Time needed: 102us. Result size: 23
+  Time needed: 253us. Result size: 23
+Intersect '../postinglists/rug.txt' & '../postinglists/bowling.txt'.
+  Time needed: 101us. Result size: 23
+  Time needed: 250us. Result size: 23
+
+ Average baseline time: 6139us.
+
+ Average intersect time: 2518us.
+Intersect '../postinglists/film.txt' & '../postinglists/bowling.txt'.
+  Time needed: 3438us. Result size: 3412
+  Time needed: 8151us. Result size: 3412
+Intersect '../postinglists/film.txt' & '../postinglists/bowling.txt'.
+  Time needed: 3193us. Result size: 3412
+  Time needed: 7860us. Result size: 3412
+Intersect '../postinglists/film.txt' & '../postinglists/bowling.txt'.
+  Time needed: 2895us. Result size: 3412
+  Time needed: 3992us. Result size: 3412
+Intersect '../postinglists/film.txt' & '../postinglists/bowling.txt'.
+  Time needed: 2967us. Result size: 3412
+  Time needed: 3642us. Result size: 3412
+Intersect '../postinglists/film.txt' & '../postinglists/bowling.txt'.
+  Time needed: 2871us. Result size: 3412
+  Time needed: 3978us. Result size: 3412
+
+ Average baseline time: 4606us.
+
+ Average intersect time: 4021us.
+Intersect '../postinglists/film.txt' & '../postinglists/rug.txt'.
+  Time needed: 2310us. Result size: 450
+  Time needed: 2555us. Result size: 450
+Intersect '../postinglists/film.txt' & '../postinglists/rug.txt'.
+  Time needed: 2601us. Result size: 450
+  Time needed: 2687us. Result size: 450
+Intersect '../postinglists/film.txt' & '../postinglists/rug.txt'.
+  Time needed: 33647us. Result size: 450
+  Time needed: 2612us. Result size: 450
+Intersect '../postinglists/film.txt' & '../postinglists/rug.txt'.
+  Time needed: 1731us. Result size: 450
+  Time needed: 3212us. Result size: 450
+Intersect '../postinglists/film.txt' & '../postinglists/rug.txt'.
+  Time needed: 1525us. Result size: 450
+  Time needed: 2615us. Result size: 450
+
+ Average baseline time: 5858us.
+
+ Average intersect time: 3593us.
+
+ Overall average baseline time: 5858us.
+
+ Overall average intersect time: 3593us.

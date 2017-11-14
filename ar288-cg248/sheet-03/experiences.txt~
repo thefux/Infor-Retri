@@ -1,0 +1,5 @@
+I had trouble debugging because I was not able to print anything from
+my program whenever it got stuck. How can I make my program print when
+it is stuck in a loop. Do I have to add something to the make file?
+
+with intersectZipper:

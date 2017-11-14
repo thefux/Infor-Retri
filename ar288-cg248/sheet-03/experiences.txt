@@ -1,0 +1,41 @@
+say how much time you invested: More than 8 hours.
+
+and if you had major problems, and if so, where:
+Debugging was difficult, because I was not able to print anything from
+my program whenever it got stuck. The program prints normally when
+it's not stuck. It still prints if it runs into a recursive loop which
+results in an overflow => My problem is only with loops...
+
+How can I make my program print when it is stuck? Do I have to add
+something to the make file?
+
+At the very end I noticed that some of my methods pass the test cases,
+but they run into problems with real data:
+
+* with intersectZipper (with sentinels):
+Average baseline time: 19937us.
+Average intersect time: 14118us.
+
+* with gallopingBinarySearch:
+Average baseline time: 5045us.
+Average intersect time: 6759us.
+Bad runtime due to my crude way of avoiding the halting problem. Also
+not all the elements in the intersection are detected (probably also
+due to this problem).
+
+* with intersectBinarySearchRecursive:
+stack overflow! This has something to do with the halting problem:
+https://stackoverflow.com/questions/1030527/how-to-detect-an-infinite-loop-in-a-recursive-call
+
+I don't have the time to deal with the halting problem before the
+deadline.. :-/
+
+* with intersectBinarySearchUsingSentinels:
+gets stuck in the loop and doesn't print any output (maybe also
+related to the halting problem).
+
+
+Again I wish I had more time to work on this and I wish I had noticed
+these problems earlier. All the methods pass the test cases just
+fine...
+
