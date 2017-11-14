@@ -391,6 +391,16 @@ public class PostingList {
     return result;
   }
 
+  /**
+   * Intersect with a galloping binary search.
+   *
+   * @param l1
+   * PostingList 1.
+   * @param l2
+   * PostingList 2.
+   * @return
+   * PostingList intersection of 1 and 2.
+   */
   public static PostingList intersectGallopingBinarySearch(PostingList l1,
                                                            PostingList l2) {
     // Swap to make sure l1 is smaller.
@@ -402,7 +412,7 @@ public class PostingList {
     result.reserve(Math.min(l1.size(), l2.size()));
 
     int i1 = 0;
-    int i2 = 0;
+    int i2 = l2.size();
     int lb = 0;
     int mb = 0;
     int ub = 0;
@@ -410,24 +420,36 @@ public class PostingList {
 
 
     while (l1.getId(i1) < Integer.MAX_VALUE) {
-      i2 = lb;
-      jump = 0;
+      jump = 1;
 
-      // Something wrong here:
-//      while (l1.getId(i1) > l2.getId(i2)) {
-//        if (jump > 2) {
-//          lb = i2;
-//        }
-//        i2 = i2 + jump;
-//        jump = 2 * jump;
-////        while (i2 + jump > l2.size()) {
-////          jump = jump / 2;
-////        }
-//        if (i2 > l2.size()) {
-//          i2 = l2.size();
-//          break;
+//      for (int i = 0; i < l1.ids.length; i1++) {
+//        for (int n = 0; n < l2.ids.length; n++) {
+//          System.out.println("l1.getId(" + i1 + ") = " + l1.getId(i1) +
+//                  "   l2.getId(" + n + ") = " + l2.getId(n));
 //        }
 //      }
+
+      // Something wrong here:
+      i2 = lb;
+      while (l1.getId(i1) > l2.getId(i2)) {
+        lb = i2;
+        i2 = i2 + jump;
+        jump = 2 * jump;
+        while (i2 + jump > l2.size()) {
+          jump = jump / 2;
+        }
+
+        if (l1.getId(i1) == l2.getId(i2)) {
+          //result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getId(i2));
+          i2 = i2 + jump / 2;
+          break;
+        }
+
+        if (i2 > l2.size()) {
+          i2 = l2.size();
+          break;
+        }
+      }
 
       ub = i2;
       mb = (lb + ub) / 2;
