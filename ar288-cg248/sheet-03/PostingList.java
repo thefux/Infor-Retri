@@ -170,7 +170,7 @@ public class PostingList {
       case 2 :
         return intersectBinarySearchUsingSentinels(l1, l2);
 
-      // Galloping search O(k * log(1 + n / k)).
+      // Galloping binary search: better than O(k * log(1 + n / k)).
       case 3:
         return intersectGallopingBinarySearch(l1, l2);
 
@@ -219,11 +219,9 @@ public class PostingList {
       switches = 0;
       mb = (ub + lb) / 2;
       System.out.println("    lb: " + lb + "    mb " + mb + "    ub " + ub);
-      // Stuck
       while (l2.getId(mb) - l1.getId(i1) != 0 && switches < 2) {
 
         while (l1.getId(i1) < l2.getId(mb) && switches < 2) {
-          // if (l1.getId(i1) < l2.getId(mb)) {
           old = mb;
           mb = (lb + mb) / 2;
 
@@ -233,7 +231,6 @@ public class PostingList {
         }
 
         while (l1.getId(i1) > l2.getId(mb) && switches < 2) {
-          // if (l1.getId(i1) > l2.getId(mb)) {
           old = mb;
           mb = (ub + mb) / 2;
 
@@ -392,7 +389,39 @@ public class PostingList {
   }
 
   /**
-   * Intersect with a galloping binary search.
+   * Intersect with a galloping + binary search.
+   * Looking for 5 in: l2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+   *
+   * Galloping:
+   * step   state
+   * 0.     [1] < [5]
+   * 1.     [2] < [5]
+   * 2.     [4] < [5]
+   * 3.     [8] > [5]
+   *
+   *        Binary:       Linear:
+   * step   state         state
+   * 4.     [6] > [5]     [7] > [5]
+   * 5.     [5] = [5]     [6] > [5]
+   * 6.     done          [5] = [5]
+   * 7.     done          done
+   *
+   * => Binary search between 4 and 8 rather than linear search between 4 and 8.
+   * The linear search would have taken 5 steps => Worst case scenario: O(n)
+   * The binary search takes 5 steps => Worst case scenario: less than O(n)
+   *
+   * In the worst case scenario:
+   *
+   * l2 has n = 2^m elements and the element to be found is positioned at place
+   * n_i = 2^(m -1) + 2^(0).
+   *
+   * First the galloping search would have to do log_2(2^m) = m steps. Then
+   * the binary search would have to do log_2(2^(m-1)) = m - 1 steps in order
+   * to find n_i.
+   *
+   * This means a maximum of 2m - 1 steps must be taken, where m = log_2(n).
+   *
+   * => The galloping binary search is in O(2*log_2(n) - 1) = O(log_2(n)).
    *
    * @param l1
    * PostingList 1.
@@ -437,9 +466,6 @@ public class PostingList {
         }
 
         jump = 2 * jump;
-//        while (i2 + jump > l2.size()) {
-//          jump = jump / 2;
-//        }
       }
 
       ub = i2;
