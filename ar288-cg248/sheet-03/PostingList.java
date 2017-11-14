@@ -126,11 +126,11 @@ public class PostingList {
 
   /**
    * Intersects the two given posting lists using an improved algorithm that
-   * uses at least three non-trivial ideas presented in the lecture.
+   * choses from four non-trivial ideas presented in the lecture.
    * 1. Sentinels.
    * 2. BinarySearch (with sentinels and recursive).
    * 3. BinarySearch with shifting lower bound.
-   * 4. Galloping search.
+   * 4. Galloping binary search.
    *
    * @param l1
    *        The first posting list.
@@ -141,19 +141,53 @@ public class PostingList {
    */
   public static PostingList intersect(PostingList l1, PostingList l2) {
 
-    int sw = 1;
-    //    if (l1.size() < l2.size()) {
-    //      int k = l1.size();
-    //      int n = l2.size();
-    //
-    //    } else {
-    //      int k = l2.size();
-    //      int n = l1.size();
-    //    }
+    double n = 0;
+    double k = 0;
+
+    int sw = 3;
+
+    if (l1.size() < l2.size()) {
+      k = l1.size();
+      n = l2.size();
+
+    } else {
+      k = l2.size();
+      n = l1.size();
+    }
+
+    // time of 0
+    double zip_worst = n + k;
+
+    // time of 1 and 2
+    // double bin_best = k * (Math.log(n) / Math.log(2));
+    double bin_worst = k * (Math.log(n - k) / Math.log(2));
+
+    // time of 1 and 2
+    double galloping_bin = k * (Math.log(n) / Math.log(2) - k);
+
+    double best = Math.min(zip_worst, bin_worst);
+    best = Math.min(best, galloping_bin);
+
+    // Highest complexity (not assymptotic complexity).
+    if (galloping_bin == best) {
+      sw = 3;
+    }
+
+    // Medium complexity (not assymptotic complexity).
+    if (bin_worst == best) {
+      // 1 or 2, whichever is faster...
+      sw = 2;
+    }
+
+    // Smallest complexity (not assymptotic complexity).
+    if (zip_worst == best) {
+      sw = 0;
+    }
 
     switch (sw) {
-      // Recursive binary search O(k * log(n)). Makes use of a shrinking list
-      // to be searched:
+      // Recursive binary search.
+      // Makes use of a shrinking list to be searched
+      // => better than O(k * log_2(n)) and worse than O(k * log_2(n - k)):
       case 1 :
         int i1 = 0;
         int lb = 0;
@@ -165,18 +199,24 @@ public class PostingList {
         return intersectBinarySearchRecursive(l1, l2, i1, lb, ub, mb, result,
                 0, 0);
 
-      // Binary search with loops instead of recursion. Makes use of a
-      // shrinking list to be searched. O(k * log(n))
+      // Binary search with loops instead of recursion.
+      // Makes use of a shrinking list to be searched
+      // => better than O(k * log_2(n)) and worse than O(k * log_2(n - k)):
       case 2 :
         return intersectBinarySearchUsingSentinels(l1, l2);
 
-      // Galloping binary search: better than O(k * log(1 + n / k)).
+      // Galloping binary search.
+      // The run time is: O(k * (2*log_2(n) - 1)) = O(k * log_2(n) - k)
+      // => Assymptotically always better than galloping linear search.
+      // => Assymptotically also always better than the linear search.
       case 3:
         return intersectGallopingBinarySearch(l1, l2);
 
       default :
         break;
     }
+
+    // Worst case: O(n + k)
     return intersectZipper(l1, l2);
   }
 
@@ -185,6 +225,13 @@ public class PostingList {
    * are also used, but it was not possible to completely avoid if
    * statements because control variables were needed to avoid getting stuck
    * in loops. The lists are swapped if l1 is longer than l2...
+   *
+   * Worst case scenario:
+   * l1 = [1, 2, 3, 4, 5, 6, 7]       k elements
+   * l2 = [1, 2, 3, 4, 5, 6, 7, 8]    m = log_2(n) elements
+   *
+   * => Number of steps: log_2(n - 0) + log_2(n - 1) + ... + log_2(n - k)
+   * => Worse than k * log_2(n - k)
    *
    * @param l1
    * list 1.
@@ -214,7 +261,6 @@ public class PostingList {
     PostingList result = new PostingList();
     result.reserve(l1.size());
 
-    System.out.println("Ping: Entering");
     while (l1.getId(i1) < Integer.MAX_VALUE) {
       switches = 0;
       mb = (ub + lb) / 2;
@@ -422,6 +468,9 @@ public class PostingList {
    * This means a maximum of 2m - 1 steps must be taken, where m = log_2(n).
    *
    * => The galloping binary search is in O(2*log_2(n) - 1) = O(log_2(n)).
+   *
+   * When repeated k times, the run time is O(k * (2*log_2(n) - 1)) = O(k *
+   * log_2(n) - k)
    *
    * @param l1
    * PostingList 1.
