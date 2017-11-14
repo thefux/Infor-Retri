@@ -418,37 +418,28 @@ public class PostingList {
     int ub = 0;
     int jump = 1;
 
-
     while (l1.getId(i1) < Integer.MAX_VALUE) {
       jump = 1;
 
-//      for (int i = 0; i < l1.ids.length; i1++) {
-//        for (int n = 0; n < l2.ids.length; n++) {
-//          System.out.println("l1.getId(" + i1 + ") = " + l1.getId(i1) +
-//                  "   l2.getId(" + n + ") = " + l2.getId(n));
-//        }
-//      }
-
-      // Something wrong here:
       i2 = lb;
       while (l1.getId(i1) > l2.getId(i2)) {
         lb = i2;
         i2 = i2 + jump;
-        jump = 2 * jump;
-        while (i2 + jump > l2.size()) {
-          jump = jump / 2;
-        }
-
-        if (l1.getId(i1) == l2.getId(i2)) {
-          //result.addPosting(l1.getId(i1), l1.getScore(i1) + l2.getId(i2));
-          i2 = i2 + jump / 2;
-          break;
-        }
 
         if (i2 > l2.size()) {
           i2 = l2.size();
           break;
         }
+
+        if (l1.getId(i1) == l2.getId(i2)) {
+          i2 = i2 + jump;
+          break;
+        }
+
+        jump = 2 * jump;
+//        while (i2 + jump > l2.size()) {
+//          jump = jump / 2;
+//        }
       }
 
       ub = i2;
