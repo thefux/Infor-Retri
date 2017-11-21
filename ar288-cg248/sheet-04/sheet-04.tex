@@ -1,0 +1,180 @@
+\documentclass[12pt]{article}%
+\usepackage{amsfonts}
+\usepackage{fancyhdr}
+\usepackage{comment}
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=2.2cm, right=2.2cm]%
+{geometry}
+\usepackage{times}
+\usepackage{physics}
+\usepackage{amsmath}
+\usepackage{changepage}
+\usepackage{amssymb}
+\usepackage{graphicx}%
+\setcounter{MaxMatrixCols}{30}
+\newtheorem{theorem}{Theorem}
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newenvironment{proof}[1][Proof]{\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Lagr}{\mathcal{L}}
+
+\begin{document}
+
+\title{Information Retrieval}
+\author{Chandran Goodchild and Abderrahmen Rakez}
+\date{\today}
+\maketitle
+\section{Shannon's source coding theorem}
+$\sum_{i} 2^{-L_{i}} \leq 1$, where $L_{i}$ is the length of the encoding for integer i.\\
+$\Rightarrow$ Show that $E(L_{X}) \geq H(X)$ when $X \in {1, ..., m}$:
+
+Minimize $L_{X} = \sum_{i} p_{i} \cdot L_{i}$ subject to Kraft's inequality $\sum_{i} 2^{-L_{i}} \leq 1$\\
+
+\begin{align}
+f(L_{i}, p_{i}) &= \sum_{i} p_{i} \cdot L_{i}\\
+g(L_{i}, p_{i}) &= \sum_{i} 2^{-L_{i}} - 1 \leq 0\\
+p_{i} = 2^{-L_{i}} \Rightarrow \Lagr = f - \lambda g &= \sum_{i} p_{i} \cdot L_{i} - \lambda \cdot \sum_{i} p_{i} - 1
+\end{align}
+
+Partial derivatives:
+\begin{align}
+%\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{\lambda} &= \sum_{i} p_{i} - 1 = 0 \Rightarrow p_{i} = \frac{1}{\sum_{i} 1}\\
+\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{L_{i}} &= \sum_{i} p_{i} = 0 \Rightarrow p_{i} = 0\\
+\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{p_{i}} &= \sum_{i} L_{i} - \lambda \sum_{i} 1 = 0 \Rightarrow L_{i} = \lambda
+\end{align}
+
+Rearranging $\sum_{i} 2^{-L_{i}} - 1 = \sum_{i} p_{i} - 1 \leq 0$
+\begin{align}
+\sum_{i} 2^{-L_{i}} = \sum_{i} p_{i} \leq 1\\
+i\cdot 2^{-L_{i}} = i \cdot p_{i} \leq 1\\
+2^{-L_{i}} = p_{i} \leq \frac{1}{i}\\
+2^{L_{i}} = \frac{1}{p_{i}} \geq i\\
+\Rightarrow L_{i} = \log_{2}(\frac{1}{p_{i}}) \geq \log_{2}(i)
+\end{align}
+
+\begin{comment}
+OLD:
+
+\begin{align}
+f(L_{i}, p_{i}) &= \sum_{i} p_{i} \cdot L_{i}\\
+g(L_{i}, p_{i}) &= \sum_{i} 2^{-L_{i}} - 1 \leq 0\\
+\Lagr = f - \lambda g &= \sum_{i} p_{i} \cdot L_{i} - \lambda \cdot \sum_{i} 2^{-L_{i}} - 1
+\end{align}
+
+Partial derivatives:
+\begin{align}
+\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{\lambda} &= \sum_{i} 2^{-L_{i}} - 1 = 0 \\
+\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{L_{i}} &= \sum_{i} p_{i} - \lambda \cdot \sum_{i} -2^{-L_{i}} log(2) = 0\\
+\pdv{\Lagr(L_{i}, p_{i}, \lambda)}{p_{i}} &= \sum_{i} L_{i} = 0
+\end{align}
+
+Rearranging $\sum_{i} 2^{-L_{i}} - 1 = 0$
+\begin{align}
+0 &= i \cdot 2^{-L_{i}} - 1\\
+-L_{i} &= \log_{2}(\frac{1}{i})\\
+L_{i} &= -\log_{2}(\frac{1}{i})
+\end{align}
+
+Rearranging $\sum_{i} p_{i} - \lambda \cdot \sum_{i} -2^{-L_{i}} 
+\log(2) = 0$\\
+\begin{align}
+i\cdot p_{i} = -\log(2) \lambda \cdot i \cdot 2^{-L_{i}}\\
+2^{-L_{i}} = \frac{p_{i}}{-\log(2) \lambda}
+\end{align}
+%\begin{align}
+%L_{i} = -\log_{2}(\frac{1}{i}) \Rightarrow \sum_{i} p_{i} - \lambda \cdot \sum_{i} -\frac{1}{i} log(2) &= 0\\
+%\sum_{i} p_{i} + \log(2) \cdot \lambda \cdot \sum_{i} \frac{1}{i} &= 0\\
+%i \cdot p_{i} + \log(2) \lambda &= 0\\
+%\Rightarrow \lambda &= \frac{- i \cdot p_{i}}{\log(2)}
+%\end{align}
+
+Rearranging $\sum_{i} L_{i} = 0$\\
+\begin{align}
+\sum_{i} -\log_{2}(\frac{1}{i}) &= 0\\
+2^{0} &= \frac{1}{i}\\
+i &= 1
+\end{align}
+
+Now we have:\\
+%\begin{align}
+%i &= 1\\
+%L_{i} = -\log_{2}(\frac{1}{i}) = -\log_{2}(\frac{1}{1}) &= 0\\
+%\lambda = \frac{- i \cdot p_{i}}{\log(2)} &= \frac{- p_{i}}%{\log(2)}
+%\end{align}
+\begin{align}
+\sum_{i} 2^{-L_{i}} - 1 &\leq 0\\
+i \cdot 2^{-L_{i}} - 1 &\leq 0\\
+2^{-L_{i}} = \frac{p_{i}}{-\log(2) \lambda} &\leq \frac{1}{i}\\
+L_{i} = -\log_{2}(\frac{p_{i}}{-\log(2) \lambda}) &\leq -\log_{2}(\frac{1}{i})
+\end{align}
+
+$\Rightarrow$ Minimal for $L_{i} = \log_{2}\frac{1}{p_{i}}$\\
+
+\end{comment}
+
+Then:
+\begin{align}
+L_{X} = \sum_{i} p_{i} \cdot L_{i} \geq \sum_{i} p_{i} \cdot \log_{2} \frac{1}{p_{i}} = H(x) \: \: \: \square
+\end{align}
+
+$E(L_{x}) \leq H(x) + 1$ (part 2 of the source coding theorem) was shown in slide 23 of the lecture.
+
+\section{Golomb: Entropy-optimal encoding}
+X is a fixed gap in an inverted list such that
+\begin{align}
+%Pr(X = i) = p_{i} = (1 - p)^{i - 1} \cdot p \: \: | \: \: p < 1,\\
+Pr(X = i) = p_{i} = (1 - p)^{i} \cdot \frac{p}{1 - p} \: \: | \: \: p < 1.
+\end{align}
+Show that Golomb encoding with modulus $M = \frac{1}{p}\ln(2)$ is an entropy-optimal encoding for the gaps $\Rightarrow L_{i} \leq \log_{2}(\frac{1}{p_{i}}) + \mathcal{O}(1)$ for all $i$.\\
+
+Golomb:
+\begin{align}
+x &= q \cdot M + r\\
+q &= \frac{x}{M}\\
+r &= x \% M\\
+\text{Golomb}(x) &= [q]_{\text{unary}0} + 1 + [r]_{\text{binary}}
+\end{align}
+
+When $M = \frac{1}{p}\ln(2)$:
+\begin{align}
+q = \frac{x \cdot p}{\ln(2)}\\
+r = x \% \frac{\ln(2)}{p}
+\end{align}
+
+The length of the Golomb code is $L_{i} = q + 1 + \log_{2}(r)$
+\begin{align}
+L_{i} &= \frac{x \cdot p}{\ln(2)} + 1 + \log_{2}\left(x \% \frac{\ln(2)}{p}\right)\\
+x = i \text{ and } p < 1 \Rightarrow L_{i} &\leq \log_{2}\left(x \% \frac{\ln(2)}{p}\right) + \frac{i}{\ln(2)} + 1\\
+1 + x \leq e^{x}\text{ for }x \in \mathcal{R} \Rightarrow L_{i} &\leq \log_{2}\left(\left(e^{x} - 1\right)\% \frac{\ln(2)}{p}\right) + \frac{i}{\ln(2)} + 1\\
+L_{i} &\leq \log_{2}\left(e^{x}\% \frac{\ln(2)}{p}\right) + \frac{i}{\ln(2)} + 1\\
+L_{i} &\leq \log_{2}\left(\frac{\ln(2)}{p}\right) + \frac{i}{\ln(2)} + 1\\
+\log(a \cdot b) = \log(a) + \log(b) \Rightarrow L_{i} &\leq \log_{2}\left(\frac{1}{p}\right) + \log_{2}(\ln(2)) + \frac{i}{\ln(2)} + 1\\
+L_{i} &\leq \log_{2}\left(\frac{1}{p_{i}}\right) + \mathcal{O}(i)\\
+i = \text{constant / scalar} \Rightarrow L_{i} &\leq \log_{2}\left(\frac{1}{p_{i}}\right) + \mathcal{O}(1) \: \: \square
+\end{align}
+
+\section{Space Usage of Optimally Gap-Encoded Inverted Index}
+
+\end{document}

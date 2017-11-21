@@ -1,0 +1,9 @@
+Experiences:
+We didn't get far this week, because we went off track while trying to
+complete exercise 1.
+
+Of all the movies you have watched (or rewatched) this year, which one
+is your favorite and why?
+
+The Big Lebowski, because we had a chance to find the movie with our
+own code...
