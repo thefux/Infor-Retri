@@ -24,8 +24,8 @@ public class QGramIndexTest {
     QGramIndex qgi = new QGramIndex(3);
     qgi.buildFromFile("example.tsv");
     Assert.assertEquals("{$$b=[2], $$f=[1], $br=[2], $fr=[1], bre=[2],"
-                        + " ei$=[1, 2], fre=[1], i$$=[1, 2], rei=[1, 2]}",
-                        qgi.invertedLists.toString());
+                    + " ei$=[1, 2], fre=[1], i$$=[1, 2], rei=[1, 2]}",
+            qgi.invertedLists.toString());
   }
 
   @Test
@@ -40,5 +40,14 @@ public class QGramIndexTest {
     QGramIndex qgi = new QGramIndex(3);
     Assert.assertEquals("freiburg", QGramIndex.normalize("Frei, burg !!"));
     Assert.assertEquals("freiburg", QGramIndex.normalize("freiburg"));
+  }
+
+  @Test
+  public void testBuildFromFile2() throws IOException {
+    QGramIndex qgi = new QGramIndex(3);
+    qgi.buildFromFile("example.tsv");
+    Assert.assertEquals("[Entity(name=\"frei\", score=3, description=\"a " +
+            "word\"), Entity(name=\"brei\", score=2, description=\"another " +
+            "word\")]", qgi.entities.toString());
   }
 }

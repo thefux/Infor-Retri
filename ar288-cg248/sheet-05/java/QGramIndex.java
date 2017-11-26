@@ -21,58 +21,9 @@ public class QGramIndex {
     this.q = q;
     this.padding = new String(new char[q - 1]).replace("\u0000", "$");
     this.invertedLists = new TreeMap<>();
+    this.entities = new ArrayList<Entity>();
   }
 
-  // Build a q-gram index from the entity names of the given file. The expected
-  // file format is one line per entity with tab-separated columns. The first
-  // column contains the entity name (needed for indexing), the second column
-  // a popularity score (needed for ranking), the third column a short
-  // description of the entity (needed only to enrich the output) and
-  // the remaining columns some additional information about the entity (needed
-  // only for some optional stuff). The first line contains a header with a
-  // short description of each column.
-  //
-  // Before computing the q-grams, normalize each string by lowercasing
-  // and removing all non-word characters (including whitespace) as shown in
-  // the lecture.
-  //
-  // Pay attention to either keep duplicates in the lists or keep a count of
-  // the number of each id, e.g. represented by a pair (id, num).
-  //
-  // TEST CASE:
-  //   QGramIndex index(3);
-  //   index.buildFromFile("example.tsv");
-  //   index.invertedLists;
-  // RESULT:
-  //   {
-  //     "$$b": [2],
-  //     "$$f": [1],
-  //     "$br": [2],
-  //     "$fr": [1],
-  //     "bre": [2],
-  //     "fre": [1],
-  //     "rei": [1, 2]
-  //   }
-  //   OR
-  //   {
-  //     "$$b": [(2, 1)],
-  //     "$$f": [(1, 1)],
-  //     "$br": [(2, 1)],
-  //     "$fr": [(1, 1)],
-  //     "bre": [(2, 1)],
-  //     "fre": [(1, 1)],
-  //     "rei": [(1, 1), (2, 1)]
-  //   }
-  //
-  // TEST CASE:
-  //   QGramIndex index(3);
-  //   index.buildFromFile("example.tsv");
-  //   index.entities;
-  // RESULT:
-  //   [
-  //     Entity(name="frei", score=3, description="a word"),
-  //     Entity(name="brei", score=2, description="another word")
-  //   ]
   /**
    * Build index from given file (one line per entity, see ES5).
    */
@@ -92,6 +43,8 @@ public class QGramIndex {
         }
         invertedLists.get(qGram).add(wordId);
       }
+      entities.add(new Entity(word, Integer.parseInt(line.split("\t")[1]),
+              line.split("\t")[2]));
     }
   }
 
@@ -126,5 +79,5 @@ public class QGramIndex {
   TreeMap<String, ArrayList<Integer>> invertedLists;
 
   // The entities, as given in the entity file.
-  // Array<Entity> entities;
+  ArrayList<Entity> entities;
 }

@@ -1,0 +1,33 @@
+// Copyright 2017, University of Freiburg,
+// Chair of Algorithms and Data Structures.
+// Author: cg248, ar288
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.TreeMap;
+import java.util.ArrayList;
+
+/**
+ * Entities to be searched.
+ */
+public class Entity {
+
+    /**
+     * Create an empty Entity.
+     */
+    public Entity(String name, int score, String description) {
+        this.name = name;
+        this.score = score;
+        this.description = description;
+    }
+
+    public String toString() {
+        return "Entity(name=\"" + this.name + "\", " + "score=" + this.score + ", description=\"" + this.description + "\")";
+    }
+
+    public String name;
+    public int score;
+    public String description;
+}
