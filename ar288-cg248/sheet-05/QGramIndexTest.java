@@ -5,6 +5,7 @@
 import org.junit.Test;
 import org.junit.Assert;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * One unit test for each non-trivial method in the QGramIndex class.
@@ -49,5 +50,19 @@ public class QGramIndexTest {
     Assert.assertEquals("[Entity(name=\"frei\", score=3, description=\"a "
         + "word\"), Entity(name=\"brei\", score=2, description=\"another "
         + "word\")]", qgi.entities.toString());
+  }
+
+  // TEST CASE:
+  //   mergeLists([1, 1, 3, 5], [2, 3, 3, 9, 9]);
+  // RESULT:
+  //   [1, 1, 2, 3, 3, 3, 5, 9, 9]
+  //   OR
+  //   [(1, 2), (2, 1), (3, 3), (5, 1), (9, 2)]
+  @Test
+  public void testMergeLists() throws IOException {
+    QGramIndex qgi = new QGramIndex(3);
+    int[][] lists = {{1, 1, 3, 5}, {2, 3, 3, 9, 9}};
+    Assert.assertEquals("[1, 1, 2, 3, 3, 3, 5, 9, 9]", Arrays.toString(qgi
+        .mergeLists(lists)));
   }
 }

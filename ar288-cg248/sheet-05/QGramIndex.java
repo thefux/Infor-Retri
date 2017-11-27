@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * First steps towards a q-gram index, written during class.
@@ -48,24 +49,19 @@ public class QGramIndex {
     }
   }
 
-  // Merge the given inverted lists. Pay attention to either keep duplicates in
-  // the result list or keep a count of the number of each id.
-  //
-  // NOTE: It is ok, if you do this merging by simply concatenating the lists
-  // and then sort the concatenation. That is, you do not have to make use of
-  // the fact, that the lists are already sorted.
-  //
-  // TEST CASE:
-  //   mergeLists([1, 1, 3, 5], [2, 3, 3, 9, 9]);
-  // RESULT:
-  //   [1, 1, 2, 3, 3, 3, 5, 9, 9]
-  //   OR
-  //   [(1, 2), (2, 1), (3, 3), (5, 1), (9, 2)]
-  Array<int> mergeLists(Array<Array<int>> lists) {
+  int[] mergeLists(int[][] lists) {
+    int length = lists[0].length + lists[1].length;
+    int[] result = new int[length];
+    for (int i = 0; i < lists[0].length; i++) {
+      result[i] = lists[0][i];
+    }
 
+    for (int i = 0; i < lists[1].length; i++) {
+      result[lists[0].length + i] = lists[1][i];
+    }
+    Arrays.sort(result);
+    return result;
   }
-//  OR
-//  Array<Pair<int,int>> mergeLists(Array<Array<int>> lists);
 
   /**
    * Compute q-grams for padded, normalized version of given string.
