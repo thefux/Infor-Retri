@@ -49,6 +49,11 @@ public class QGramIndex {
     }
   }
 
+  /**
+   * Merge two arrays and return the sorted result.
+   * @param lists
+   * @return int[] sorted result of merging the two arrays.
+   */
   int[] mergeLists(int[][] lists) {
     int length = lists[0].length + lists[1].length;
     int[] result = new int[length];
@@ -62,6 +67,52 @@ public class QGramIndex {
     Arrays.sort(result);
     return result;
   }
+
+  // Compute the prefix edit distance of the two given strings x and y and
+  // return it if it is smaller or equal to the given δ. Otherwise return δ + 1.
+  //
+  // NOTE: The method must run in time O(|x| * (|x| + δ)), as explained in the
+  // lecture.
+  //
+  // TEST CASE:
+  //   prefixEditDistance("frei", "frei", 0);
+  // RESULT:
+  //   0
+  //
+  // TEST CASE:
+  //   prefixEditDistance("frei", "freiburg", 0);
+  // RESULT:
+  //   0
+  //
+  // TEST CASE:
+  //   prefixEditDistance("frei", "breifurg", 1);
+  // RESULT:
+  //   1
+  //
+  // TEST CASE:
+  //   prefixEditDistance("freiburg", "stuttgart", 2);
+  // RESULT:
+  //   3
+  int prefixEditDistance(String x, String y, int delta) {
+    int[] array = new int[x.length() + delta];
+    int minimum = x.length();
+    for (int m = 0; m < array.length; m++) {
+      array[m] = 0;
+
+      for (int n = 0; n < x.length(); n++) {
+        System.out.println(x.charAt(n));
+        System.out.println(y.charAt(n));
+        if(!(x.charAt(n) == y.charAt(n))) {
+          array[m]++;
+        }
+      }
+
+      minimum = Math.min(array[m], minimum);
+    }
+
+    return Math.min(minimum, delta + 1);
+  }
+
 
   /**
    * Compute q-grams for padded, normalized version of given string.
