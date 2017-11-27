@@ -60,10 +60,6 @@ public class QGramIndexTest {
         .mergeLists(lists)));
   }
 
-  // TEST CASE:
-  //   prefixEditDistance("frei", "frei", 0);
-  // RESULT:
-  //   0
   @Test
   public void testPrefixEditDistance0() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
@@ -73,11 +69,6 @@ public class QGramIndexTest {
     Assert.assertEquals(qgi.prefixEditDistance(x, y, 0), 0);
   }
 
-  //
-  // TEST CASE:
-  //   prefixEditDistance("frei", "freiburg", 0);
-  // RESULT:
-  //   0
   @Test
   public void testPrefixEditDistance1() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
@@ -88,11 +79,6 @@ public class QGramIndexTest {
   }
 
 
-  //
-  // TEST CASE:
-  //   prefixEditDistance("frei", "breifurg", 1);
-  // RESULT:
-  //   1
   @Test
   public void testPrefixEditDistance2() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
@@ -103,11 +89,6 @@ public class QGramIndexTest {
   }
 
 
-  //
-  // TEST CASE:
-  //   prefixEditDistance("freiburg", "stuttgart", 2);
-  // RESULT:
-  //   3
   @Test
   public void testPrefixEditDistance3() throws IOException {
     QGramIndex qgi = new QGramIndex(3);

@@ -68,41 +68,26 @@ public class QGramIndex {
     return result;
   }
 
-  // Compute the prefix edit distance of the two given strings x and y and
-  // return it if it is smaller or equal to the given δ. Otherwise return δ + 1.
-  //
-  // NOTE: The method must run in time O(|x| * (|x| + δ)), as explained in the
-  // lecture.
-  //
-  // TEST CASE:
-  //   prefixEditDistance("frei", "frei", 0);
-  // RESULT:
-  //   0
-  //
-  // TEST CASE:
-  //   prefixEditDistance("frei", "freiburg", 0);
-  // RESULT:
-  //   0
-  //
-  // TEST CASE:
-  //   prefixEditDistance("frei", "breifurg", 1);
-  // RESULT:
-  //   1
-  //
-  // TEST CASE:
-  //   prefixEditDistance("freiburg", "stuttgart", 2);
-  // RESULT:
-  //   3
+  /**
+   * Return the editing distance of two Strings and return delta + 1 if it is
+   * less than the editing distance.
+   * @param x string 1 (the shorter string)
+   * @param y string 2 (the longer string)
+   * @param delta
+   * @return
+   */
   int prefixEditDistance(String x, String y, int delta) {
+    if (y.length() < x.length()) {
+      return prefixEditDistance(y, x, delta);
+    }
+
     int[] array = new int[x.length() + delta];
     int minimum = x.length();
     for (int m = 0; m < array.length; m++) {
       array[m] = 0;
 
       for (int n = 0; n < x.length(); n++) {
-        System.out.println(x.charAt(n));
-        System.out.println(y.charAt(n));
-        if(!(x.charAt(n) == y.charAt(n))) {
+        if (!(x.charAt(n) == y.charAt(n))) {
           array[m]++;
         }
       }
