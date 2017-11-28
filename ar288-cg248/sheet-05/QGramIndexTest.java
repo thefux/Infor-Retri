@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.Assert;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * One unit test for each non-trivial method in the QGramIndex class.
@@ -120,12 +121,23 @@ public class QGramIndexTest {
   public void testFindMatches2() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
     qgi.buildFromFile("example.tsv");
-    System.out.println(qgi.findMatches("freibu", 2).toString());
-    System.out.println("([(Entity(name=\"frei\", score=3, description=\"a "
-        + "word\"), 0)], 1)");
-
     Assert.assertEquals("([(Entity(name=\"frei\", score=3, description=\"a "
         + "word\"), 0)], 1)", qgi.findMatches("freibu", 2).toString());
   }
 
+  @Test
+  public void testRankMatches() throws IOException {
+    ArrayList<Match> matches = new ArrayList<Match>();
+    matches.add(new Match(new Entity("foo", 3, "word 0"), 2));
+    matches.add(new Match(new Entity("bar", 7, "word 1"), 0));
+    matches.add(new Match(new Entity("baz", 2, "word 2"), 1));
+    matches.add(new Match(new Entity("boo", 5, "word 3"), 1));
+    QGramIndex qgi = new QGramIndex(3);
+    matches = qgi.rankMatches(matches);
+    Assert.assertEquals("[(Entity(name=\"bar\", score=7, description=\"word "
+            + "1\"), 0), (Entity(name=\"boo\", score=5, description=\"word "
+            + "3\"), 1), (Entity(name=\"baz\", score=2, description=\"word "
+        + "2\"), 1), (Entity(name=\"foo\", score=3, description=\"word 0\")"
+        + ", 2)]", matches.toString());
+  }
 }
