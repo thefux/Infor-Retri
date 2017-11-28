@@ -88,7 +88,6 @@ public class QGramIndexTest {
     Assert.assertEquals(qgi.prefixEditDistance(x, y, 1), 1);
   }
 
-
   @Test
   public void testPrefixEditDistance3() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
@@ -97,4 +96,45 @@ public class QGramIndexTest {
 
     Assert.assertEquals(qgi.prefixEditDistance(x, y, 2), 3);
   }
+
+  @Test
+  public void testFindMatches0() throws IOException {
+    QGramIndex qgi = new QGramIndex(3);
+    qgi.buildFromFile("example.tsv");
+    Assert.assertEquals("([(Entity(name=\"frei\", score=3, description=\"a "
+        + "word\"), 0)], 1)", qgi.findMatches("frei", 0).toString());
+  }
+
+  @Test
+  public void testFindMatches1() throws IOException {
+    QGramIndex qgi = new QGramIndex(3);
+    qgi.buildFromFile("example.tsv");
+
+    Assert.assertEquals("([(Entity(name=\"frei\", score=3, "
+        + "description=\"a " + "word\"), 0)," + " (Entity(name=\"brei\", "
+        + "score=2, " + "description=\"another word\"), 1)], 2)", qgi
+        .findMatches("frei", 2).toString());
+  }
+
+  // TEST CASE:
+  //   QGramIndex index(3);
+  //   index.buildFromFile("example.tsv");
+  //   index.findMatches("freibu", 2);
+  // RESULT:
+  //   ([(Entity(name="frei", score=3, description="a word"), 2)], 2)
+  @Test
+  public void testFindMatches2() throws IOException {
+    QGramIndex qgi = new QGramIndex(3);
+    qgi.buildFromFile("example.tsv");
+    System.out.println(qgi.findMatches("freibu", 2).toString());
+    System.out.println("([(Entity(name=\"frei\", score=3, description=\"a "
+        + "word\"), 2)], 2)");
+
+    Assert.assertEquals("([(Entity(name=\"frei\", score=3, " +
+        "description=\"a " +
+        "word\"), 0)," + " (Entity(name=\"brei\", score=2, " +
+        "description=\"another word\"), 1)], 2)", qgi.findMatches("frei", 2)
+        .toString());
+  }
+
 }
