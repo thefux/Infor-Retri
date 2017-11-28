@@ -116,25 +116,16 @@ public class QGramIndexTest {
         .findMatches("frei", 2).toString());
   }
 
-  // TEST CASE:
-  //   QGramIndex index(3);
-  //   index.buildFromFile("example.tsv");
-  //   index.findMatches("freibu", 2);
-  // RESULT:
-  //   ([(Entity(name="frei", score=3, description="a word"), 2)], 2)
   @Test
   public void testFindMatches2() throws IOException {
     QGramIndex qgi = new QGramIndex(3);
     qgi.buildFromFile("example.tsv");
     System.out.println(qgi.findMatches("freibu", 2).toString());
     System.out.println("([(Entity(name=\"frei\", score=3, description=\"a "
-        + "word\"), 2)], 2)");
+        + "word\"), 0)], 1)");
 
-    Assert.assertEquals("([(Entity(name=\"frei\", score=3, " +
-        "description=\"a " +
-        "word\"), 0)," + " (Entity(name=\"brei\", score=2, " +
-        "description=\"another word\"), 1)], 2)", qgi.findMatches("frei", 2)
-        .toString());
+    Assert.assertEquals("([(Entity(name=\"frei\", score=3, description=\"a "
+        + "word\"), 0)], 1)", qgi.findMatches("freibu", 2).toString());
   }
 
 }

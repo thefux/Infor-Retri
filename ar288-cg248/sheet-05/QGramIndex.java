@@ -133,14 +133,14 @@ public class QGramIndex {
 
   //  Matches findMatches(String x, int delta) {
   Matches findMatches(String x, int delta) {
-    ArrayList<String> xQGrams = computeOneSidedQGrams(x);
+    ArrayList<String> xQGrams = computeQGrams(x);
     ArrayList<String> entityQGrams;
     int numOfMatches;
     int distance;
     Matches result = new Matches();
     // Iterate over all the entities.
     for (int i = 0; i < entities.toArray().length; i++) {
-      entityQGrams = computeOneSidedQGrams(entities.get(i).name);
+      entityQGrams = computeQGrams(entities.get(i).name);
       numOfMatches = 0;
       for (int n = 0; n < xQGrams.toArray().length; n++) {
         for (int m = 0; m < entityQGrams.toArray().length; m++) {
@@ -152,9 +152,10 @@ public class QGramIndex {
         }
       }
 
-//      if (numOfMatches >= x.length() - (this.q * delta)) {
-      if (numOfMatches >= Math.max(x.length(), entities.get(i).name.length()
-      ) - 1 - (delta - 1) * this.q) {
+      //      if (numOfMatches >= x.length() - (this.q * delta)) {
+      if (numOfMatches >= Math.max(x.length(), entities.get(i).name.length())
+          - 1 - (delta - 1) * this.q) {
+
 //        System.out.println("\n\n\nnumOfMatches " + numOfMatches
 //            + "\tx.length() - (this.q * delta) "
 //            + (x.length() - (this.q * + delta))
@@ -162,8 +163,12 @@ public class QGramIndex {
 //            + "\tthis.q " + this.q
 //            + "\tdelta" + delta
 //            + "\nentities.get(i).toString()\t" + entities.get(i).toString());
+
         // So many matches! => Calculate the editign distance...
         distance = prefixEditDistance(x, entities.get(i).name, delta);
+//        System.out.println("x " + x + "\tentity " + entities.get(i).name);
+//        System.out.println(distance);
+
         result.matches.add(new Match(entities.get(i), distance));
         result.numPedComputations++;
       }
