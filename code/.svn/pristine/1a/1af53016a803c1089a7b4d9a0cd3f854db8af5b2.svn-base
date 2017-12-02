@@ -1,0 +1,60 @@
+// Copyright 2017, University of Freiburg,
+// Chair of Algorithms and Data Structures.
+// Author: Claudius Korzen <korzen@cs.uni-freiburg.de>.
+
+// A simple HTTP server for the q-gram index as explained in lecture 6.
+class SearchServerMain
+    // No pre-defined tests are required this time. However, if you add new
+    // non-trivial methods, you should of course write tests for them.
+    //
+    // Your server should behave like explained in the lecture. For a given
+    // URL of the form http://<host>:<port>/search.html?q=<query>, your server
+    // should return a (static) HTML page that displays (1) an input field and a
+    // search button as shown in the lecture, (2) the query without any URL 
+    // encoding characters and (3) the top-5 entities returned by your q-gram
+    // index (from exercise sheet 5) for the query. 
+    //
+    // In the following, you will find some example URLs, each given with the
+    // expected query (%QUERY%) and the expected entities (%RESULT%, each in the
+    // format "<name>;<score>;<description>") that should be displayed by the
+    // HTML page returned by your server when calling the URL. Note that, as
+    // usual, the contents of the test cases is important, but not the exact
+    // syntax. In particular, there is no HTML markup given, as the layout of
+    // the HTML pages and the presentation of the entities is up to you. Please
+    // make sure that the HTML page displays at least the given query and the
+    // names, scores and descriptions of the given entities in the given order
+    // (descending sorted by scores).
+    //
+    // URL:
+    //   http://<host>:<port>/search.html?q=angel
+    // RESPONSE:
+    //   %QUERY%:
+    //     angel
+    //   %RESULT%:
+    //     ["Angela Merkel;180;Chancellor of Germany",
+    //      "Angelina Jolie;137;American actress, film director, and screenwriter",
+    //      "angel;122;supernatural being or spirit in certain religions and mythologies",
+    //      "Angel Falls;76;waterfall in Venezuela",
+    //      "Angels & Demons;54;thriller book written by Dan Brown"]
+    //
+    // URL:
+    //   http://<host>:<port>/search.html?q=eyjaffjala
+    // RESPONSE:
+    //   %QUERY%:
+    //     eyjaffjala
+    //   %RESULT%:
+    //     ["Eyjafjallajökull;82;glacier and volcano in Iceland",
+    //      "Eyjafjarðarsveit;15;municipality of Iceland",
+    //      "Eyjafjallajökull;7;2013 film by Alexandre Coffre"]
+    //
+    // URL:
+    //   http://<host>:<port>/search.html?q=The+hitschheiker+guide
+    // RESPONSE:
+    //   %QUERY%:
+    //     The hitschheiker guide
+    //   %RESULT%:
+    //     ["The Hitchhiker's Guide to the Galaxy;41;1979 book by Douglas Adams",
+    //      "The Hitchhiker's Guide to the Galaxy pentalogy;38;1979-1992 series of five books by Douglas Adams",
+    //      "The Hitchhiker's Guide to the Galaxy;32;2005 British-American comic science fiction film",
+    //      "The Hitchhiker's Guide to the Galaxy;8;BBC television series",
+    //      "The Hitchhiker's Guide to the Galaxy;7;interactive fiction video game"]
