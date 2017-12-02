@@ -1,0 +1,72 @@
+Hi Abderrahmen and Chandran,
+
+here is my feedback for your submission of exercise sheet 04:
+
+# ______________________________________________________________________________
+# Exercise 1: 1/6 Points
+
+Don't use "L_i" for the lagrangian since it is totally different to the "L_i" and "i" from the sum.
+
+Why is "p_i = 2^(-L_i)"? You can't assume that since with that you fix the prefix-free code.
+But the code is arbitrary, the only constraint is that Kraft's inequality holds and that all p_i sum up to 1.
+
+Your missing a chooseable factor in your lagrangian notation. The "g" function should have "- c" in
+the end for a "0 <= c <= 1" (the 1 comes from the "<= 1" constraint). And you need to choose that "c"
+such that the result gets minimal (in the end). You directly choosed "-1" but you can not be
+sure that this is the right choice of the range for c at this point.
+
+The derivative with respect to Lambda is wrong. The sum stays since "lambda" is its factor.
+You need to derivate with respect to "L_i", not "p_i". The "p_i" don't even occur in your constraint.
+
+At this point your following transformations are wrong since your "base" is completly messed up.
+
+All in all it seems that you have an idea of what to do but are not that clear about it.
+
+Please take a look at the master solution to see the correct procedure.
+
+# ______________________________________________________________________________
+# Exercise 2: 2/8 Points
+
+The exercise lists a different expression for "p_i". The expressions are of course equivalent but you
+should not do that. It's also an indicator for me that you may have stolen the submission
+somewhere from the internet.
+
+Your totally missing the "ceil" and "floor" methods on your golomb definition. They are very important,
+how would you use "2.5" bits? That is not possible.
+
+Your length of Golomb is false. It is log_2(M) and not log_2(r), take a look at the lecture slides.
+
+Why do you even use "x" when you have "L_i"? This way it is not clear who "x" and "i" should be, are they
+different gaps? They should both be the same, so either write "L_x" and "x" or "L_i" and "i".
+
+You need to use some logical symbols like "<=>" left to your expressions. Otherwise you just have a
+bunch of expressions that are not connected to each other.
+
+How can you absorb the "-1" from equation (21) to (22)? Have you proven that this holds, especially
+together with the "%" operator? Is "5 % 2 = 1" less than "6 % 2 = 0"? I don't think so,
+this equation is not true.
+
+The same in the next line, how can you drop the left part of the "%" operator? This time it is
+true but that is again not trivial. You need to convince more here. For example "x % y <= y" for all y
+with fixed x since ... (plugin definition of % and show that it ranges to y).
+
+Why is "i" constant? It is not, it is a gap which changes.
+
+All in all I think you got the idea, good. However since you lack a lot of details, you made mistakes.
+At that point it looks like your trying hard to construct your proof such that it concludes.
+
+# ______________________________________________________________________________
+# Exercise 3: 0/6 Points
+
+-
+
+# ______________________________________________________________________________
+# General:
+
+You have the right ideas but you need to practice writing everything more formal and precise.
+If doing everything step by step you will see when you made a mistake.
+
+Total: 3/20 Points
+
+Cheers
+Daniel Tischner (daniel-tischner@web.de)

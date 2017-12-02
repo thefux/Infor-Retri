@@ -1,0 +1,59 @@
+Hi Abderrahmen and Chandran,
+
+here is my feedback for your submission of exercise sheet 03:
+
+# ______________________________________________________________________________
+# Exercise 1: 16/20 Points
+
+If you encounter such problems you should increase your test coverage.
+You just used the base line test cases everywhere, they don't cover much cases.
+Think of other special cases that may trigger problems.
+If you got an endless recursion it's most likely due to indices not computed correctly (off by one or so).
+
+A program will always execute your statements, also prints, also if it's in an endless recursion.
+If you don't see your prints it means your code got stuck elsewhere and doesn't even come to that point
+where you print. If you could reproduce the issue, i.e. know a faulty input, then break that input down.
+What's special about that input? Debug the code, what's happening at which position. Print your indices,
+check if they are what you think they should be. For this you obviously need a small example input that
+reproduces the issue, so make sure you cover all special cases with tests, such that you find the faulty case.
+You can also use debugger software (likely overkill here), most IDEs have one integrated. With them you can
+execute your code line-wise and always pause it and then check the content of all variables.
+
+Whenever you can, avoid recursion. Every recursion call adds a huge overload to the stack and stresses it.
+Especially in this case, where inputs are big, I could imagine that you get a StackOverflow even
+if the program runs correct.
+The stack size is limited on all machines and it is not that big. You can't run an recursive binary search
+on tons of data, that just tends to exceed the limits. Instead implement it iteratively! The code will be
+equivalent and the difference is more than day and night.
+
+Really, don't use recursion if you don't really need to use it.
+
+1. (6/10):
+Your tries to debug the code really obscure the code. Please annotate such stuff with
+comments otherwise it's not really readable (-1).
+
+The code itself looks okay, especially the galopping search but I can't
+debug that recursive stuff for you.
+
+You have tests and documentation of all methods, thats really good.
+
+As you have mentioned your code has some errors (-3).
+
+2. (10/10):
+You did that, nice!
+
+# ______________________________________________________________________________
+# General:
+
+Please don't use the Copyright Disclaimer of the university unless you are explicitly allowed to do that.
+
+Next time please immediatly callback at the forum if you got stuck. I'm almost sure that with the help of
+the forum you would have gotten that method correct in a few minutes.
+
+Besides that, well done. I like that you tried to debug it on your own.
+You just need a bit more practice, that's fine :)
+
+Total: 16/20 Points
+
+Cheers
+Daniel Tischner (daniel-tischner@web.de)
