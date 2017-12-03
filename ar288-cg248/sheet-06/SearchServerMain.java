@@ -1,7 +1,4 @@
-// Copyright 2017, University of Freiburg,
-// Chair of Algorithms and Data Structures.
-// Authors: Claudius Korzen <korzen@cs.uni-freiburg.de>,
-//          Hannah Bast <bast@cs.uni-freiburg.de>
+// Edited by ar288 and cg248
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -43,28 +40,46 @@ public class SearchServerMain {
       System.out.println("client connected from " + client.getInetAddress());
 
       // Client connected; set read timeout.
-      // client.setSoTimeout(1000);
-      
+      client.setSoTimeout(5000);
+
       // Read first line from the request (not enough for ES6).
       BufferedReader input = new BufferedReader(new InputStreamReader(
-                                                  client.getInputStream()));
-      String fileName = input.readLine();
+          client.getInputStream()));
+      StringBuilder requestBuilder = new StringBuilder();
+      String fileName;
+      try {
 
-      // Read contents of file.
-      String contentString = "File not found\n";
-      byte[] contentBytes = contentString.getBytes("UTF-8");
-      Path file = Paths.get(fileName);
-      if (Files.isRegularFile(file) && Files.isReadable(file)) {
-        contentBytes = Files.readAllBytes(file);
+        fileName = input.readLine();
+        int i = 5;
+
+        while (fileName.charAt(i) != " ".charAt(0)) {
+          i++;
+        }
+
+        fileName = fileName.substring(5, i);
+
+        System.out.println(fileName);
+
+        // Read contents of file.
+        String contentString = "File not found\n";
+        byte[] contentBytes = contentString.getBytes("UTF-8");
+        Path file = Paths.get(fileName);
+        if (Files.isRegularFile(file) && Files.isReadable(file)) {
+          contentBytes = Files.readAllBytes(file);
+        }
+
+        // Send the response.
+        DataOutputStream output = new DataOutputStream(client.getOutputStream());
+        output.write(contentBytes);
+        output.close();
+        input.close();
+        client.close();
+
+      } catch (java.net.SocketTimeoutException e) {
+        System.out.println("Read TIMEOUT");
+        input.close();
+        client.close();
       }
-
-      // Send the response.
-      DataOutputStream output = new DataOutputStream(client.getOutputStream());
-      output.write(contentBytes);
-
-      output.close();
-      input.close();
-      client.close();
     }
   }
 }
