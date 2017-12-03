@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 /**
  * Basic server code that returns the contents of a requested file.
@@ -47,18 +48,34 @@ public class SearchServerMain {
           client.getInputStream()));
       StringBuilder requestBuilder = new StringBuilder();
       String fileName;
+      String line = "";
+//      StringBuilder in = new StringBuilder();
       try {
-
+        // Redo this as in the lecture!
         fileName = input.readLine();
+
+//        line = input.readLine();
+//        System.out.println(line);
+//        in.append(input.readLine());
+//        while (!line.equals("") && line != null) {
+//          in.append(input.readLine());
+//          line = input.readLine();
+//        }
+//
+//        fileName = in.toString();
+//        System.out.println(fileName);
+
         int i = 5;
 
+        if (fileName.equals("")) {
+          fileName = "angryResponse.html";
+          System.out.println("empty string");
+        }
+        // When done this way, our server can handle get requests as well as
+        // simple requests via telnet...
         if (fileName.substring(0, 5).equals("GET /")) {
           // It's a browser!
-          while (fileName.charAt(i) != " ".charAt(0)) {
-            i++;
-          }
-
-          fileName = fileName.substring(5, i);
+          fileName = fileName.substring(5, fileName.indexOf(" HTTP/1.1"));
         }
 
         System.out.println(fileName);
@@ -67,22 +84,52 @@ public class SearchServerMain {
         String contentString = "File not found\n";
         byte[] contentBytes = contentString.getBytes("UTF-8");
         Path file = Paths.get(fileName);
+        String contentType = "";
+        String statusString = "";
+
         if (Files.isRegularFile(file) && Files.isReadable(file)) {
           contentBytes = Files.readAllBytes(file);
+
+          if (fileName.substring(fileName.indexOf("."), fileName.length())
+              .equals(".txt")) {
+            contentType = "text/plain";
+            statusString = "HTTP/1.1 200 OK";
+          }
+
+          if (fileName.substring(fileName.indexOf("."), fileName.length())
+              .equals(".html")) {
+            contentType = "text/html";
+            statusString = "HTTP/1.1 200 OK";
+          }
+
+          if (fileName.substring(fileName.indexOf("."), fileName.length())
+              .equals(".css")) {
+            contentType = "text/plain";
+            statusString = "HTTP/1.1 200 OK";
+          }
+
+          if (file.getNameCount() != 1) {
+            statusString = "HTTP/1.1 403 Not found";
+          }
+        } else {
+          //if (!Files.isReadable(file)) {
+          statusString = "HTTP/1.1 404 Not found";
+          //}
         }
 
-        // Send the response.
-        DataOutputStream output = new DataOutputStream(client.getOutputStream());
-        StringBuilder headerBuilder = new StringBuilder();
-        String contentType = "text/plain";
-        headerBuilder.append("HTTP/1.1 200 OK");
-        headerBuilder.append("Content-Length: " + contentBytes.length +
-            "\r\n");
-        headerBuilder.append("Content-Type: " + contentType + "\r\n");
-        headerBuilder.append("\r\n");
-        //output.write(contentBytes);
-        output.write(headerBuilder.toString().getBytes("UTF-8"));
-        output.write(contentBytes);
+          // Send the response.
+          DataOutputStream output = new DataOutputStream(client.getOutputStream());
+          StringBuilder headerBuilder = new StringBuilder();
+
+          headerBuilder.append(statusString + "\r\n");
+          headerBuilder.append("Content-Length: " + contentBytes.length +
+              "\r\n");
+          headerBuilder.append("Content-Type: " + contentType + "\r\n");
+          headerBuilder.append("\r\n");
+          //output.write(contentBytes);
+          output.write(headerBuilder.toString().getBytes("UTF-8"));
+          output.write(contentBytes);
+
         output.close();
         input.close();
         client.close();
