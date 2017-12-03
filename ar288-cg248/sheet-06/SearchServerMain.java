@@ -52,11 +52,14 @@ public class SearchServerMain {
         fileName = input.readLine();
         int i = 5;
 
-        while (fileName.charAt(i) != " ".charAt(0)) {
-          i++;
-        }
+        if (fileName.substring(0, 5).equals("GET /")) {
+          // It's a browser!
+          while (fileName.charAt(i) != " ".charAt(0)) {
+            i++;
+          }
 
-        fileName = fileName.substring(5, i);
+          fileName = fileName.substring(5, i);
+        }
 
         System.out.println(fileName);
 
@@ -70,6 +73,15 @@ public class SearchServerMain {
 
         // Send the response.
         DataOutputStream output = new DataOutputStream(client.getOutputStream());
+        StringBuilder headerBuilder = new StringBuilder();
+        String contentType = "text/plain";
+        headerBuilder.append("HTTP/1.1 200 OK");
+        headerBuilder.append("Content-Length: " + contentBytes.length +
+            "\r\n");
+        headerBuilder.append("Content-Type: " + contentType + "\r\n");
+        headerBuilder.append("\r\n");
+        //output.write(contentBytes);
+        output.write(headerBuilder.toString().getBytes("UTF-8"));
         output.write(contentBytes);
         output.close();
         input.close();
