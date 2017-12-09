@@ -1,0 +1,140 @@
+// Copyright 2017, University of Freiburg,
+// Chair of Algorithms and Data Structures.
+// Author: Claudius Korzen <korzen@cs.uni-freiburg.de>.
+
+// A simple HTTP server that returns JSON responses for fuzzy completion search
+// requests and deals with encoding issues and JavaScript code injections
+// properly, as explained in lecture 7.
+class SearchServerMain
+
+  // Your server should behave like explained in the lecture and ES7. For a
+  // given URL of the form http://<host>:<port>/api?q=<query>, your server
+  // should return the matches for <query> as a valid JSON object.
+  //
+  // The web application should be dynamic, by using JavaScript and the jQuery
+  // library. The URL of the search page should be
+  // http://<host>:<port>/search.html, just like for ES6. The matches should now
+  // be displayed automatically after each keystroke (so that an explicit search
+  // button is no longer necessary), and they should be obtained via your own
+  // API described above. As for ES6, you should display up to 5 matches.
+  //
+  // In the following, you will find some example URLs, each given with the
+  // expected JSON output. Note that, as usual, the contents of the test cases
+  // is important, but not the exact syntax.
+  //
+  // URL:
+  //   http://<host>:<port>/api?q=angel
+  // RESPONSE:
+  //   {
+  //     "query": "angel",
+  //     "results": [
+  //       {
+  //         "name": "Angela Merkel",
+  //         "score": 180,
+  //         "description": "Chancellor of Germany"
+  //       },
+  //       {
+  //         "name": "Angelina Jolie",
+  //         "score": 137,
+  //         "description": "American actress, film director, and screenwriter"
+  //       },
+  //       {
+  //         "name": "angel",
+  //         "score": 122,
+  //         "description": "supernatural being or spirit in certain religions and mythologies"
+  //       },
+  //       {
+  //         "name": "Angel Falls",
+  //         "score": 76,
+  //         "description": "waterfall in Venezuela"
+  //       },
+  //       {
+  //         "name": "Angels & Demons",
+  //         "score": 54,
+  //         "description": "thriller book written by Dan Brown"
+  //       }
+  //     ]
+  //   }
+  //
+  // URL:
+  //   http://<host>:<port>/api?q=eyj%C3%A4fja
+  // RESPONSE:
+  //   {
+  //     "query": "eyjäfja",
+  //     "results": [
+  //       {
+  //         "name": "Eyjafjallajökull",
+  //         "score": 82,
+  //         "description": "glacier and volcano in Iceland"
+  //       },
+  //       {
+  //         "name": "Eyjafjarðarsveit",
+  //         "score": 15,
+  //         "description": "municipality of Iceland"
+  //       },
+  //       {
+  //         "name": "Eyjafjallajökull",
+  //         "score": 7,
+  //         "description": "2013 film by Alexandre Coffre"
+  //       }
+  //     ]
+  //   }
+  //
+  // URL:
+  //   http://<host>:<port>/api?q=The+hitschheiker%20guide
+  // RESPONSE:
+  //   {
+  //     "query": "The hitschheiker guide",
+  //     "results": [
+  //       {
+  //         "name": "The Hitchhiker's Guide to the Galaxy",
+  //         "score": 41,
+  //         "description": "1979 book by Douglas Adams"
+  //       },
+  //       {
+  //         "name": "The Hitchhiker's Guide to the Galaxy pentalogy",
+  //         "score": 38,
+  //         "description": "1979-1992 series of five books by Douglas Adams"
+  //       },
+  //       {
+  //         "name": "The Hitchhiker's Guide to the Galaxy",
+  //         "score": 32,
+  //         "description": "2005 British-American comic science fiction film"
+  //       },
+  //       {
+  //         "name": "The Hitchhiker's Guide to the Galaxy",
+  //         "score": 8,
+  //         "description": "BBC television series"
+  //       },
+  //       {
+  //         "name": "The Hitchhiker's Guide to the Galaxy",
+  //         "score": 7,
+  //         "description": "interactive fiction video game"
+  //       }
+  //     ]
+  //   }
+
+
+  // Decode an URL-encoded UTF-8 string, as explained in the lecture.
+  // Don't forget to also decode a "+" (plus sign) to a space (" ")!
+  //
+  // TEST:
+  //   urlDecode("nirwana")
+  // RESULT:
+  //   "nirwana"
+  //
+  // TEST:
+  //   urlDecode("the+m%C3%A4trix")
+  // RESULT:
+  //   "the mätrix"
+  //
+  // TEST:
+  //   urlDecode("Mikr%C3%B6soft+Windos")
+  // RESULT:
+  //   "Mikrösoft Windos"
+  //
+  // TEST:
+  //   urlDecode("The+hitschheiker%20guide")
+  // RESULT:
+  //   "The hitschheiker guide"
+  String urlDecode(String encoded);
