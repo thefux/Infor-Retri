@@ -1,9 +1,6 @@
+// Edited by ar288 and cg248
 
-// Copyright 2017, University of Freiburg,
-// Chair of Algorithms and Data Structures.
-// Authors: Claudius Korzen <korzen@cs.uni-freiburg.de>,
-//          Hannah Bast <bast@cs.uni-freiburg.de>
-
+import java.io.UnsupportedEncodingException;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,6 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 
 /**
  * A simple server that handles fuzzy prefix search requests and file requests.
@@ -65,6 +68,7 @@ public class SearchServerMain {
     CONTENT_TYPES.put(".html", "text/html");
     CONTENT_TYPES.put(".css", "text/css");
     CONTENT_TYPES.put(".js", "application/javascript");
+    CONTENT_TYPES.put(".json", "application/json");
     CONTENT_TYPES.put(".jpg", "image/jpeg");
     CONTENT_TYPES.put(".png", "image/png");
   }
@@ -120,12 +124,28 @@ public class SearchServerMain {
    * The path to the HTML pattern file for an entity.
    */
   protected static final String ENTITY_TEMPLATE_FILE = "entity.pattern.html";
-  
+  // protected static final String ENTITY_TEMPLATE_FILE = "search.html";
+
   /**
    * The number of search results to show per default.
    */
   protected static final int NUM_SEARCH_RESULTS_TO_SHOW = 5;
-  
+
+  /**
+   * Is it an API search or a standard query?
+   */
+  /**
+  private boolean api = false;
+
+   else {
+    pos = parameters.indexOf("api?q=");
+    if (pos != -1) {
+      query = parameters.substring(pos + 6);
+      this.api = true;
+    }
+  }
+  **/
+
   // ==========================================================================
 
   /**
@@ -143,6 +163,7 @@ public class SearchServerMain {
       byte[] template = Files.readAllBytes(templateFile);
       this.entityHtmlPattern = new String(template, DEFAULT_ENCODING);
     } catch (Exception e) {
+      e.printStackTrace();
       this.entityHtmlPattern = "";
       System.out.println("WARN: Couldn't read the HTML pattern for an entity.");
     }
@@ -163,6 +184,11 @@ public class SearchServerMain {
     System.out.flush();
     ServerSocket server = new ServerSocket(port);
     System.out.println("Done!");
+
+    // Read wikidata names into array.
+    // ..
+    // ..
+    // ..
 
     // The main server loop.
     while (true) {
@@ -239,35 +265,56 @@ public class SearchServerMain {
       fileName = DEFAULT_FILE_NAME;
     }
 
-    if (!fileName.matches("[a-zA-Z.]+")) {
-      // The fileName contains invalid characters.
-      System.out.println("RESPONSE: 403 (fileName contains invalid chars).");
-      return HTTP_ERROR_RESPONSES.get(403).getBytes(DEFAULT_ENCODING);
-    }
+    System.out.println("httpMethod " + httpMethod);
+    System.out.println("fileName " + fileName);
+    System.out.println("parameters " + parameters);
 
-    Path file = Paths.get(SERVE_DIR, fileName);
-    if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
-      // The requested file does not exist or is not readable.
-      System.out.println("RESPONSE: 404 (File does not exist).");
-      return HTTP_ERROR_RESPONSES.get(404).getBytes(DEFAULT_ENCODING);
-    }
+    Path file;
+    byte[] body;
+    String contentType;
 
-    // Read the requested file.
-    byte[] body = Files.readAllBytes(file);
+    // Is it an API call?
+    if ((fileName.equals("api"))) {
+      file = Paths.get(SERVE_DIR, DEFAULT_FILE_NAME);
+      body = Files.readAllBytes(file);
+      //body = handleApiRequestHtml(body, parameters);
+      body = handleApiRequestJson(parameters).getBytes(DEFAULT_ENCODING);
 
-    if (fileName.equals("search.html")) {
-      // Handle a fuzzy prefix search request.
-      System.out.println("Handling fuzzy prefix search request.");
-      body = handleFuzzyPrefixSearchRequest(body, parameters);
+      contentType = "application/json";
+
+    } else {
+
+      if (!fileName.matches("[a-zA-Z.]+")) {
+        // The fileName contains invalid characters.
+        System.out.println("RESPONSE: 403 (fileName contains invalid chars).");
+        return HTTP_ERROR_RESPONSES.get(403).getBytes(DEFAULT_ENCODING);
+      }
+
+      file = Paths.get(SERVE_DIR, fileName);
+      if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
+        // The requested file does not exist or is not readable.
+        System.out.println("RESPONSE: 404 (File does not exist).");
+        return HTTP_ERROR_RESPONSES.get(404).getBytes(DEFAULT_ENCODING);
+      }
+
+      // Read the requested file.
+      body = Files.readAllBytes(file);
+
+      if (fileName.equals("search.html")) {
+        // Handle a fuzzy prefix search request.
+        System.out.println("Handling fuzzy prefix search request.");
+        body = handleFuzzyPrefixSearchRequest(body, parameters);
+      }
+
+      contentType = getContentType(file);
     }
 
     // Create the HTTP response.
     System.out.println("RESPONSE: 200 (OK).");
-    String contentType = getContentType(file);
     String headerString = HTTP_OK_HEADER + DEFAULT_LINE_DELIMITER
-            + "Content-type: " + contentType + DEFAULT_LINE_DELIMITER
-            + "Content-length: " + body.length + DEFAULT_LINE_DELIMITER
-            + DEFAULT_LINE_DELIMITER;
+        + "Content-type: " + contentType + DEFAULT_LINE_DELIMITER
+        + "Content-length: " + body.length + DEFAULT_LINE_DELIMITER
+        + DEFAULT_LINE_DELIMITER;
     byte[] header = headerString.getBytes(DEFAULT_ENCODING);
 
     // Merge the header and the body.
@@ -279,8 +326,8 @@ public class SearchServerMain {
   }
 
   /**
-   * Handles a fuzzy prefix search request.
-   * 
+   * Handles the API request.
+   *
    * @param fileBytes
    *        The bytes of the search.html (where to insert the results).
    * @param parameters
@@ -290,10 +337,10 @@ public class SearchServerMain {
    *         If something went wrong on handling the fuzzy prefix search
    *         request.
    */
-  protected byte[] handleFuzzyPrefixSearchRequest(byte[] fileBytes,
-      String parameters) throws IOException {
+  protected String handleApiRequestJson(String parameters) throws IOException {
     // Check if there is a query given in the parameters.
     String query = "";
+
     if (parameters != null) {
       int pos = parameters.indexOf("?q=");
       if (pos != -1) {
@@ -301,8 +348,55 @@ public class SearchServerMain {
       }
     }
 
-    // Decode all url-encoded whitespaces.
-    query = query.replaceAll("\\+", " ");
+    String json = "";
+    query = decodeAnything(query);
+    System.out.println("API Query: " + query);
+
+    // Pass the query to the q-gram index and create the related JSON fragment.
+    if (!query.isEmpty()) {
+      json = json + "[";
+      ObjectIntPair<List<Entity>> result = this.index.findMatches(query);
+      List<Entity> matches = result.first;
+      int numResultsToShow = Math.min(matches.size(),
+          NUM_SEARCH_RESULTS_TO_SHOW);
+      for (int i = 0; i < numResultsToShow; i++) {
+        json = json + "\"" + matches.get(i).name + "\"";
+        if (i < numResultsToShow - 1) {
+          json = json + ", ";
+        }
+      }
+      json = json + "]";
+    }
+    return json;
+  }
+
+  /**
+   * Handles the API request.
+   *
+   * @param fileBytes
+   *        The bytes of the search.html (where to insert the results).
+   * @param parameters
+   *        The parameters string from the HTTP request.
+   * @return The search.html containing the results of the fuzzy prefix search.
+   * @throws IOException
+   *         If something went wrong on handling the fuzzy prefix search
+   *         request.
+   */
+  protected byte[] handleApiRequestHtml(byte[] fileBytes,
+                                        String parameters) throws IOException {
+    // Check if there is a query given in the parameters.
+    String query = "";
+
+    if (parameters != null) {
+      int pos = parameters.indexOf("?q=");
+      if (pos != -1) {
+        query = parameters.substring(pos + 3);
+      }
+    }
+
+    query = decodeAnything(query);
+    System.out.println("API Query: " + query);
+
 
     int numResultsTotal = 0;
     int numResultsToShow = 0;
@@ -325,6 +419,71 @@ public class SearchServerMain {
     // Plug in the query into the search.html.
     searchHtml = searchHtml.replaceAll("%QUERY%", query);
 
+    // Plug in the result header.
+    String resultHeader = "";
+    if (numResultsToShow == 0) {
+      resultHeader = "Nothing to show.";
+    } else {
+      resultHeader = String.format("Found %d results for query '%s'.",
+          numResultsTotal, query);
+    }
+
+    searchHtml = searchHtml.replaceAll("%RESULT_HEADER%", resultHeader);
+
+    // Plug in the HTML fragment containing the search results.
+    searchHtml = searchHtml.replaceAll("%RESULT%", htmlBuilder.toString());
+
+    return searchHtml.getBytes(DEFAULT_ENCODING);
+  }
+
+  /**
+   * Handles a fuzzy prefix search request.
+   * 
+   * @param fileBytes
+   *        The bytes of the search.html (where to insert the results).
+   * @param parameters
+   *        The parameters string from the HTTP request.
+   * @return The search.html containing the results of the fuzzy prefix search.
+   * @throws IOException
+   *         If something went wrong on handling the fuzzy prefix search
+   *         request.
+   */
+  protected byte[] handleFuzzyPrefixSearchRequest(byte[] fileBytes,
+      String parameters) throws IOException {
+    // Check if there is a query given in the parameters.
+    String query = "";
+
+    if (parameters != null) {
+      int pos = parameters.indexOf("?query=");
+      if (pos != -1) {
+        query = parameters.substring(pos + 7);
+      }
+    }
+
+    query = decodeAnything(query);
+
+    int numResultsTotal = 0;
+    int numResultsToShow = 0;
+
+    String searchHtml = new String(fileBytes, DEFAULT_ENCODING);
+
+    // Pass the query to the q-gram index and create the related HTML fragment.
+    StringBuilder htmlBuilder = new StringBuilder();
+    if (!query.isEmpty()) {
+      ObjectIntPair<List<Entity>> result = this.index.findMatches(query);
+      List<Entity> matches = result.first;
+      numResultsTotal = matches.size();
+      numResultsToShow = Math.min(matches.size(), NUM_SEARCH_RESULTS_TO_SHOW);
+      for (int i = 0; i < numResultsToShow; i++) {
+        String html = translateToHtml(matches.get(i));
+        System.out.println(html);
+        htmlBuilder.append(html + DEFAULT_LINE_DELIMITER);
+      }
+    }
+
+    // Plug in the query into the search.html.
+    searchHtml = searchHtml.replaceAll("%QUERY%", query);
+
     // Plug in the result header. 
     String resultHeader = "";
     if (numResultsToShow == 0) {
@@ -333,13 +492,20 @@ public class SearchServerMain {
       resultHeader = String.format("Found %d results for query '%s'.",
           numResultsTotal, query);
     }
+
+    //System.out.println("result header: " + resultHeader);
+    //System.out.println("html builder: " + htmlBuilder.toString());
+
     searchHtml = searchHtml.replaceAll("%RESULT_HEADER%", resultHeader);
 
     // Plug in the HTML fragment containing the search results.
     searchHtml = searchHtml.replaceAll("%RESULT%", htmlBuilder.toString());
 
+    //System.out.println(searchHtml);
+
     return searchHtml.getBytes(DEFAULT_ENCODING);
   }
+
 
   // ==========================================================================
   // Some utility methods.
@@ -416,6 +582,15 @@ public class SearchServerMain {
     }
 
     return contentType;
+  }
+
+  /**
+   * Decode URLs and API queries.
+   * @param input string.
+   * @return output string.
+   */
+  protected static String decodeAnything(String input) {
+    return URLDecoder.decode(input);
   }
 
   // ==========================================================================

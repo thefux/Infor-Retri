@@ -1,2 +1,15 @@
-Oop sorry that I forgot to remove the copyright the second time. It
+Oop sorry that we forgot to remove the copyright the second time. It
 won't happen again...
+
+My web pages have the same format as in the lecture:
+http://<host>:<port>/search.html?query=<query> rather than
+http://<host>:<port>/search.html?q=<query>
+
+Note: We used an internal style sheet for simplicity
+
+As usual we spent a long long time on the exercise sheet, but we
+managed to complete it this time. It is nice to do something
+interactive with real data :-)
+
+We are not going to upload the dataset because of it's space
+requirements...

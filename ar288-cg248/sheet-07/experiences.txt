@@ -1,0 +1,111 @@
+The exercises took us a very long time again.
+
+Sorry that we forgot to check exercise 1 last week. We checked it
+before moving on to exercise 2, but we didn't check to see if exercise
+1 still works after finishing all the other exercises... :-/
+
+Tested and confirmed that the following queries work:
+“the mätrix ”, “nirwana”, “gorilas”, “harlem”, “Mikrösoft Windos”,
+“snow ”, “Turn Around ” and “asteroids”
+
+search.html?query=Mikrösoft+Windos
+results in: Mikrösoft Windos
+
+?query=The+hitschheiker%20guide
+results in: The hitschheiker guide
+
+etc...
+
+PS. sorry that our cookies are so boring - we were not really sure how
+we could make "good" use of them in this search engine.
+
+________________________________________________________________
+Caught the following "code injection"
+________________________________________________________________
+
+Before:
+dance	178	creative work whose interpretation generally involves movement of the body<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/harlem.js'></script>	https://en.wikipedia.org/wiki/Dance	Q11639		http://commons.wikimedia.org/wiki/Special:FilePath/Breakdance%20vienna%20crop.jpg
+
+
+After:
+dance	178	creative work whose interpretation generally involves movement of the body	https://en.wikipedia.org/wiki/Dance	Q11639		http://commons.wikimedia.org/wiki/Special:FilePath/Breakdance%20vienna%20crop.jpg
+
+
+Before:
+snow	175	precipitation in the form of flakes of crystalline water ice<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/snow.js'></script>	https://en.wikipedia.org/wiki/Snow	Q7561	snowfall;snowfalls	http://commons.wikimedia.org/wiki/Special:FilePath/AchenseeWinter06.JPG
+
+
+After:
+snow	175	precipitation in the form of flakes of crystalline water ice	https://en.wikipedia.org/wiki/Snow	Q7561	snowfall;snowfalls	http://commons.wikimedia.org/wiki/Special:FilePath/AchenseeWinter06.JPG
+
+
+Before:
+Microsoft Windows	143	family of operating systems produced for personal computers, servers, smartphones and embedded devices<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/bsod.js'></script>	https://en.wikipedia.org/wiki/Microsoft_Windows	Q1406	MS Windows;MS-Windows;Win;Windows	
+
+
+After:
+Microsoft Windows	143	family of operating systems produced for personal computers, servers, smartphones and embedded devices	https://en.wikipedia.org/wiki/Microsoft_Windows	Q1406	MS Windows;MS-Windows;Win;Windows	
+
+
+Before:
+asteroid	140	minor planet that is not comet<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/asteroids.js'></script>	https://en.wikipedia.org/wiki/Asteroid	Q3863	planetoid	
+
+
+After:
+asteroid	140	minor planet that is not comet	https://en.wikipedia.org/wiki/Asteroid	Q3863	planetoid	
+
+
+Before:
+<!--Nirvana	100	American rock band<!--	https://en.wikipedia.org/wiki/Nirvana_(band)	Q11649		http://commons.wikimedia.org/wiki/Special:FilePath/Nirvana%20around%201992.jpg
+
+
+After:
+Nirvana	100	American rock band	https://en.wikipedia.org/wiki/Nirvana_(band)	Q11649		http://commons.wikimedia.org/wiki/Special:FilePath/Nirvana%20around%201992.jpg
+
+
+Before:
+The Matrix	93	1999 American-Australian science fiction action thriller film<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/matrix.js'></script>	https://en.wikipedia.org/wiki/The_Matrix	Q83495	Matrix	http://commons.wikimedia.org/wiki/Special:FilePath/The.Matrix.glmatrix.1.png
+
+
+After:
+The Matrix	93	1999 American-Australian science fiction action thriller film	https://en.wikipedia.org/wiki/The_Matrix	Q83495	Matrixhttp://commons.wikimedia.org/wiki/Special:FilePath/The.Matrix.glmatrix.1.png
+
+
+Before:
+Robert Grosseteste	41	English bishop and philosopher	https://en.wikipedia.org/wiki/Robert_Grosseteste	Q256541	Bishop Grosthead;Grossatesta Robertus;Grosseteste Robert;Grosseteste Roberto;Lincolniensis Robertus;Lincolniensis Rubertus;Robert Capito;Robert de Lincoln;Robert Greathead;Robert Groshead;Robert Grossa;Robert Grossatesta;Robert Grossestus;Robert Grosse-Tete;Robert Grosse-Tête;Robert Grossoteste;Robert Grosstete;Robert Grosstête;Robert Grosstte<!--sic-->;Robert Grostest;Robert Grostete;Robert Grosthead;Robert Grosthead<!--sic-->;Robert Grosthed;Robert Grostte;Robert Grotest;Robert Grotshead<!--sic-->;Robert Grouthead<!--sic-->;Robert of Lincoln;Roberto Grossatesta;Robertus, Bp. of Lincoln Grosseteste;Robertus Grossatesta;Robertus Grosseteste;Robertus Grossetestus;Rupert of Lincoln	http://commons.wikimedia.org/wiki/Special:FilePath/Bishop%20Robert%20Grosseteste%2C%201896%20%28crop%29.jpg
+
+
+After:
+Robert Grosseteste	41	English bishop and philosopher	https://en.wikipedia.org/wiki/Robert_Grosseteste	Q256541	Bishop Grosthead;Grossatesta Robertus;Grosseteste Robert;Grosseteste Roberto;Lincolniensis Robertus;Lincolniensis Rubertus;Robert Capito;Robert de Lincoln;Robert Greathead;Robert Groshead;Robert Grossa;Robert Grossatesta;Robert Grossestus;Robert Grosse-Tete;Robert Grosse-Tête;Robert Grossoteste;Robert Grosstete;Robert Grosstête;Robert Grosstte;Robert Grostest;Robert Grostete;Robert Grosthead;Robert Grosthead;Robert Grosthed;Robert Grostte;Robert Grotest;Robert Grotshead;Robert Grouthead;Robert of Lincoln;Roberto Grossatesta;Robertus, Bp. of Lincoln Grosseteste;Robertus Grossatesta;Robertus Grosseteste;Robertus Grossetestus;Rupert of Lincoln	http://commons.wikimedia.org/wiki/Special:FilePath/Bishop%20Robert%20Grosseteste%2C%201896%20%28crop%29.jpg
+
+
+Before:
+Harlem Shake	29	Internet meme<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/harlem.js'></script>	https://en.wikipedia.org/wiki/Harlem_Shake_(meme)	Q4606965		
+
+
+After:
+Harlem Shake	29	Internet meme	https://en.wikipedia.org/wiki/Harlem_Shake_(meme)	Q4606965		
+
+
+Before:
+Gorillas	8	video game<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/gorilla.js'></script>	https://en.wikipedia.org/wiki/Gorillas_(video_game)	Q613486		
+
+
+After:
+Gorillas	8	video game	https://en.wikipedia.org/wiki/Gorillas_(video_game)	Q613486		
+
+
+Before:
+Turn Around	6	Flo Rida song<script type='text/javascript' src='http://ad-teaching.informatik.uni-freiburg.de/InformationRetrievalWS1718/js/flip180.js'></script>	https://en.wikipedia.org/wiki/Turn_Around_(5,_4,_3,_2,_1)	Q210131		
+
+
+After:
+Turn Around	6	Flo Rida song	https://en.wikipedia.org/wiki/Turn_Around_(5,_4,_3,_2,_1)	Q210131		
+
+
+Before:
+Claude III de L'Aubespine, seigneur d'Hauterive	2	French diplomat	https://en.wikipedia.org/wiki/Claude_III_de_l%27Aubespine	Q2978343	Claude II de l'Aubespine;Claude III -->is correct<---	
+
+
+After:
+Claude III de L'Aubespine, seigneur d'Hauterive	2	French diplomat	https://en.wikipedia.org/wiki/Claude_III_de_l%27Aubespine	Q2978343	Claude II de l'Aubespine;Claude III 	

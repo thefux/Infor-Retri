@@ -38,11 +38,6 @@ public class Entity {
   public List<String> synonyms;
 
   /**
-   * The image URL of this entity.
-   */
-  public String imageUrl;
-
-  /**
    * The prefix edit distance when this entity is part of a query result.
    */
   public int ped = -1;
@@ -81,19 +76,15 @@ public class Entity {
    *        The Wikidata id of the entity.
    * @param synonyms
    *        The synonyms of the entity.
-   * @param imageUrl
-   *        The URL of this image.
    */
   public Entity(String name, int score, String description,
-      String wikipediaUrl, String wikidataId, List<String> synonyms,
-      String imageUrl) {
+      String wikipediaUrl, String wikidataId, List<String> synonyms) {
     this.name = name;
     this.score = score;
     this.desc = description;
     this.wikipediaUrl = wikipediaUrl;
     this.wikidataId = wikidataId;
     this.synonyms = synonyms;
-    this.imageUrl = imageUrl;
   }
 
   @Override
@@ -113,9 +104,6 @@ public class Entity {
     }
     if (this.matchedSynonym != null) {
       parts.add("matchedSynonym='" + this.matchedSynonym + "'");
-    }
-    if (!this.imageUrl.equals("")) {
-      parts.add("imageUrl='" + this.imageUrl + "'");
     }
     return String.format("Entity(%s)", String.join(", ", parts));
   }

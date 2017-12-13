@@ -1,0 +1,41 @@
+Hi Abderrahmen and Chandran,
+
+here is my feedback for your submission of exercise sheet 06:
+
+# ______________________________________________________________________________
+# Exercise 1: 0/20 Points
+
+1. (5/10):
+	Though you serve 403 (forbidden), you also send the content of the file.
+	So I am indeed able to see the file:
+	https://i.imgur.com/XxFU3aU.jpg
+	
+	And also if the file is, for example, if type "txt" it will be "200" though
+	located in a different folder:
+	https://i.imgur.com/9NAkWpC.jpg
+	
+	Everything seems to be served as "text/html". Regular txt-files and CSS-files too.
+	
+	Besides that it works fine :)
+
+2. (5/5):
+	Splendid, works like a charm.
+
+3. (4/5):
+	Doesn't win a price but definitely fine! However it was part of the task to
+	create a stylesheet-file that then is requested by the browser and served
+	by your fileserver. So inline-css was not an option.
+
+# ______________________________________________________________________________
+# General:
+
+"We are not going to upload the dataset because of it's space requirements..." - And you're also
+not supposed to, thanks! :)
+
+Nicely done. Try to inspect your application next time more carefully and experiment with some inputs.
+I think you could then easily have found out that it does not behave correctly for the highlighted cases.
+
+Total: 14/20 Points
+
+Cheers
+Daniel Tischner (daniel-tischner@web.de)

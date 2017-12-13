@@ -1,6 +1,3 @@
-// Copyright 2017, University of Freiburg,
-// Chair of Algorithms and Data Structures.
-// Author: Claudius Korzen <korzen@cs.uni-freiburg.de>.
 
 // A simple HTTP server that returns JSON responses for fuzzy completion search
 // requests and deals with encoding issues and JavaScript code injections

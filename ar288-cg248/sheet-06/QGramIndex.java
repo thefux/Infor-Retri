@@ -1,3 +1,4 @@
+
 // Edited by ar288 and cg248
 
 import java.io.BufferedReader;
@@ -43,7 +44,7 @@ public class QGramIndex {
 
   /**
    * Creates an empty q-gram index.
-   *
+   * 
    * @param q
    *        The value of q.
    * @param withSynonyms
@@ -62,7 +63,7 @@ public class QGramIndex {
 
   /**
    * Builds the index from the given file (one line per entity, see ES5).
-   *
+   * 
    * @param fileName
    *        the name of the file to read.
    */
@@ -74,8 +75,6 @@ public class QGramIndex {
       // Iterate through the remaining lines.
       String line;
       while ((line = br.readLine()) != null) {
-        line = clean(line);
-
         // Split the line and fetch the several fields.
         String[] parts = line.split("\t", -1);
 
@@ -88,7 +87,6 @@ public class QGramIndex {
         if (parts.length > 5 && !parts[5].isEmpty()) {
           synonyms.addAll(Arrays.asList(parts[5].split(";")));
         }
-        String imageUrl = parts.length > 6 ? parts[6] : null;
 
         if (name != null) {
           // Compute the q-grams of the entity name and add them to the index.
@@ -113,7 +111,7 @@ public class QGramIndex {
 
           // Cache the entity.
           this.entities.add(new Entity(name, score, description, wikipediaUrl,
-              wikidataId, synonyms, imageUrl));
+              wikidataId, synonyms));
         }
       }
     } catch (IOException e) {
@@ -121,50 +119,6 @@ public class QGramIndex {
       e.printStackTrace();
     }
   }
-
-  protected String clean(String input) {
-    boolean repeat = false;
-    String output = input;
-
-    output = output.replace("-->is correct<---", "");
-    output = output.replace("<!--sic-->", "");
-    output = output.replace("<!--", "");
-    output = output.replace("-->", "");
-    output = output.replace("<--", "");
-    //output = output.replace("<", "");
-    //output = output.replace(">", "");
-
-    String part1 = "";
-    String part2 = "";
-    int start = output.indexOf("<script");
-    int stop = output.indexOf("></script>");
-
-    if (start != -1) {
-      part1 = output.substring(0, start);
-      repeat = true;
-    }
-
-    if (stop != -1) {
-      part2 = output.substring(stop + 10);
-      repeat = true;
-    }
-
-    if (repeat == true) {
-      output = part1 + part2;
-    }
-
-    if (repeat == true) {
-      output = clean(output);
-    }
-
-    if (!output.equals(input)) {
-      System.out.println("\n\nBefore:\n" + input);
-      System.out.println("\n\nAfter:\n" + output);
-    }
-
-    return output;
-  }
-
 
   // ==========================================================================
   // Exercise 1.2
@@ -301,19 +255,20 @@ public class QGramIndex {
   /**
    * Finds all entities y with PED(x, y) <= delta for a given integer delta and
    * a given prefix x.
-   *
+   * 
    * @param prefix
    *        The prefix.
+   * @param delta
+   *        The value of delta.
    * @return A pair (matches, numPEDComputations), where 'matches' is the list
    *         of matching entities and 'numPEDComputations' is the number of PED
    *         computations needed to compute the matches.
    */
-  protected ObjectIntPair<List<Entity>> findMatches(String prefix) {
+  protected ObjectIntPair<List<Entity>> findMatches(String prefix, int delta) {
     List<Entity> matches = new ArrayList<>();
     int numPedComputations = 0;
 
     prefix = normalize(prefix);
-    int delta = prefix.length() / 4;
     int threshold = prefix.length() - (this.q * delta);
 
     if (prefix.length() > 0) {
@@ -383,7 +338,7 @@ public class QGramIndex {
   /**
    * Ranks the given list of entities (PED, s), where PED is the PED value and s
    * is the popularity score of an entity.
-   *
+   * 
    * @param matches
    *        The list of entities to rank.
    *
@@ -424,7 +379,7 @@ public class QGramIndex {
 
   /**
    * Transforms the given string to lower cases and removes all whitespaces.
-   *
+   * 
    * @param string
    *        The string to normalize.
    *
